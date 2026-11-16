@@ -1,0 +1,10 @@
+# 锁定行尾，保证"同一内容 → 同一哈希"这件事不随克隆平台变化。
+# 不加这一条，Windows 上 clone 出来的文件会被 autocrlf 改成 CRLF，
+# 于是"逐字节可复现"在别人的机器上就不成立了。
+* text=auto eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.toml text eol=lf
+*.jsonl text eol=lf
+*.png binary
+*.ico binary
