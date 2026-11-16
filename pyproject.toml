@@ -1,0 +1,26 @@
+[project]
+name = "agent-runtime-forge"
+version = "0.1.0"
+description = "Enterprise Agent runtime rebuilt on mainstream stacks (LangGraph/FastAPI/MCP/RAG/eval harness) - a controlled comparison against a zero-dependency in-house runtime"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.7",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2",
+]
+
+# ⛔ 不把本项目自身装进 venv（扁平布局 + `python -m forge...` 即可），
+# 但 pytest 需要仓库根在 sys.path 上，见下面 pythonpath。
+[tool.uv]
+package = false
+
+# D1 故意不装 langgraph / fastapi / openai —— 按 D2/D3/D4 逐日引入，
+# 每天的验收不过就不进下一步（见作品集任务书 §0 规矩 2）。
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "-q"

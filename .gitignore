@@ -1,0 +1,17 @@
+# 生成物与本地数据（合成数据可随时用 seed 复现，不入库）
+data/
+*.jsonl
+
+# ⛔ 任何真实密钥一律不得提交
+.env
+.env.local
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+*.sqlite3
+*.db
+.DS_Store
