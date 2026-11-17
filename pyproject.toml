@@ -4,7 +4,14 @@ version = "0.1.0"
 description = "Enterprise Agent runtime rebuilt on mainstream stacks (LangGraph/FastAPI/MCP/RAG/eval harness) - a controlled comparison against a zero-dependency in-house runtime"
 requires-python = ">=3.11"
 dependencies = [
+    "aiosqlite>=0.22.1",
+    "langchain>=1.5.0",
+    "langchain-core>=1.8.1",
+    "langchain-openai>=1.8.0",
+    "langgraph>=1.2.22",
+    "langgraph-checkpoint-sqlite>=3.1.3",
     "pydantic>=2.7",
+    "pydantic-settings>=2.16.3",
 ]
 
 [dependency-groups]
