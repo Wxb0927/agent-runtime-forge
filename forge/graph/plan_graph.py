@@ -87,7 +87,10 @@ def build_plan_graph(*, handoff_mode: HandoffMode = "namespaced",
                        "project": ",".join(named) if named else "*",
                        "metrics": [{**m, "branch": branch} for m in out["metrics"]],
                        "row_counts": out["row_counts"]}
-            return {branch: payload, "steps_seen": [branch]}  # ← 各写自己的通道
+            # 各写自己的通道；note 也各写各的 ⇒ 三条分支在**同一个 superstep** 里
+            # 共写 notes，靠 Annotated[list, operator.add] 合并（M5 的靶子就在这）
+            return {branch: payload, "steps_seen": [branch],
+                    "notes": [f"[{branch}] from={payload['from_']} step={payload['step']}"]}
         return node
 
     def n_fanin(state: ForgeState) -> dict[str, Any]:
