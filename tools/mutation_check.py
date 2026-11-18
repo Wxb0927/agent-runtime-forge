@@ -82,8 +82,11 @@ MUTATIONS_D2: list[tuple[str, str, str, str, str]] = [
      'test_no_profile_falls_to_member_floor'),
     ('M3 host 不再挂 checkpointer',
      'tools/intake_host.py',
-     'graph = build_intake_graph(verify_seconds=a.verify_seconds).compile(checkpointer=saver)',
-     'graph = build_intake_graph(verify_seconds=a.verify_seconds).compile()',
+     # ⚠️ 锚点只咬 compile 调用本身：上一版把整行写全，后来我给 host 加了
+     #    crash_in_verify 参数、那一行被拆成两行 ⇒ 锚点过期。锚点越长越脆，
+     #    而且**过期必须报错而不是算通过**（本条就是这么被抓出来的）。
+     'compile(checkpointer=saver)',
+     'compile()',
      'test_r1_kill_at_gate_then_resume_in_a_new_process'),
     ('M4 写前的人工闸直接放行（删掉 interrupt）',
      'forge/graph/intake_graph.py',
@@ -105,9 +108,17 @@ def run_pytest(k: str) -> int:
                           stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT).returncode
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    # 用法：python tools/mutation_check.py [关键字 ...]
+    # 过滤器是这次补的：M3 锚点过期时只想复验那一条，⛔ 为此等十分钟全量。
+    wanted = list(argv or [])
     failures = []
-    for i, (name, rel, old, new, test_id) in enumerate(ALL_MUTATIONS):
+    selected = [(i, m) for i, m in enumerate(ALL_MUTATIONS)
+                if not wanted or any(w in m[0] for w in wanted)]
+    if not selected:
+        print("没有变异匹配这些关键字：", " ".join(wanted))
+        return 1
+    for i, (name, rel, old, new, test_id) in selected:
         group = "D1" if i < len(MUTATIONS) else "D2"
         path = ROOT / rel
         # ⚠️ 必须**按字节**备份再还原：文本模式写文件在 Windows 上会把换行
@@ -131,11 +142,13 @@ def main() -> int:
         if not ok:
             failures.append(name)
     print()
-    print("能失败检查: %d/%d 通过（D1 %d + D2 %d）"
-          % (len(ALL_MUTATIONS) - len(failures), len(ALL_MUTATIONS),
+    print("能失败检查: %d/%d 通过（本仓库共 %d 条：D1 %d + D2 %d）"
+          % (len(selected) - len(failures), len(selected), len(ALL_MUTATIONS),
              len(MUTATIONS), len(MUTATIONS_D2)))
+    if wanted:
+        print("   （已按关键字过滤：%s）" % " ".join(wanted))
     return 1 if failures else 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(main(sys.argv[1:]))
