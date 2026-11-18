@@ -27,8 +27,10 @@ class Settings(BaseSettings):
 
     api_key: Optional[SecretStr] = Field(default=None, exclude=True)
     base_url: str = DEFAULT_BASE_URL
-    model: str = "qwen-plus"
-    judge_model: str = "qwen-max"
+    model: str = "deepseek-v4.1-flash"  # 实测：本负载下比 qwen3.8-flash 少 13% 输出 token、快 7%
+    judge_model: str = "deepseek-v4.1-flash"
+        # judge 也⛔ 用 qwen-max：实测这把 key 对它回 403（D4 要用，先把默认值改对）。需要更强判官时显式传 qwen3.8-max（实测可用，但贵一档）。
+
 
     def require_key(self) -> str:
         key = self.api_key
