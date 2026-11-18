@@ -34,6 +34,7 @@ from forge.graph.tools import all_tools
 from forge.model.scripted import ScriptedChatModel
 
 SCRATCH = Path("data/cli")
+NL = chr(10)  # ⛔ 在源码字面量里写换行转义：脚本改文件时容易被展开成真实换行（实测翻车两次）
 
 
 def _show(env: dict[str, Any]) -> None:
@@ -84,14 +85,14 @@ def run_plan(query: str, *, user: str, seed: int, as_of: str, thread: str,
 
 
 def run_react(which: str, query: str, *, user: str, seed: int, as_of: str,
-              thread: str, live: bool, approve: bool) -> int:
+              thread: str, live: bool, approve: bool, args_model: str | None = None) -> int:
     ds = dataset_for(seed)
     plan = router_mod.route(query, ds)
     skills = plan["skills"]
     if live:
         from forge.model.factory import build_live_model
 
-        model = build_live_model()
+        model = build_live_model(model=args_model)
         mode = "live"
     else:
         args = {"user_key": user, "as_of": as_of}
@@ -110,13 +111,22 @@ def run_react(which: str, query: str, *, user: str, seed: int, as_of: str,
         meta = {"tools": names}
 
     cfg = checkpoint.thread_config(thread)
-    payload: Any = {"messages": [{"role": "user", "content": query}]}
+    # ⚠️ 宿主注入身份与基准日：这两个值模型⛔ 能知道，也⛔ 该猜（schema 里写的就是
+    #    "never inferred"）。实测真模型（qwen3.8-max）在缺这两个值时会**反问用户**而
+    #    ⛔ 编一个 u0041 —— 契约设计的"必填不注入就不许猜"在真模型上成立。
+    injected = (f"{query}{NL}{NL}（宿主注入，直接用于工具参数，⛔ 自行推断："
+                f"user_key={user}，as_of={as_of}）")
+    payload: Any = {"messages": [{"role": "user", "content": injected}]}
     if approve:
         payload = __import__("langgraph.types", fromlist=["Command"]).Command(
             resume={"decisions": [{"type": "approve"}]})
     out = app.invoke(payload, cfg)
     msgs = out.get("messages", [])
-    print(f"[{which}/{mode}] 绑定工具={meta['tools']}  模型轮次={getattr(model, 'calls', '?')}")
+    rounds = getattr(model, "calls", None)
+    if rounds is None:  # 真模型没有计数器，用消息里的 AI 轮次近似
+        rounds = sum(1 for m in out.get("messages", []) if type(m).__name__ == "AIMessage")
+        rounds = f"{rounds}(按 AIMessage 计)"
+    print(f"[{which}/{mode}] 绑定工具={meta['tools']}  模型轮次={rounds}")
     for m in msgs:
         tcs = getattr(m, "tool_calls", None)
         if tcs:
@@ -141,6 +151,9 @@ def main(argv: Optional[list[str]] = None) -> int:
     ap.add_argument("--as-of", default=AS_OF.isoformat())
     ap.add_argument("--thread", default="cli-1")
     ap.add_argument("--live", action="store_true", help="用真模型（读 FORGE_API_KEY）")
+    ap.add_argument("--model", default=None,
+                    help="覆盖 FORGE_MODEL（这把百炼子空间的 key 只授权了部分模型，"
+                         "默认 qwen-plus 会 403，实测 qwen3.8-max 可用）")
     ap.add_argument("--approve", action="store_true", help="对停在闸上的线程回 approve")
     a = ap.parse_args(argv)
     parse_as_of(a.as_of)  # 早失败：⛔ 让坏日期一路跑到渲染层
@@ -148,7 +161,7 @@ def main(argv: Optional[list[str]] = None) -> int:
         return run_plan(a.query, user=a.user, seed=a.seed, as_of=a.as_of,
                         thread=a.thread, approve=a.approve)
     return run_react(a.line, a.query, user=a.user, seed=a.seed, as_of=a.as_of,
-                     thread=a.thread, live=a.live, approve=a.approve)
+                     thread=a.thread, live=a.live, approve=a.approve, args_model=a.model)
 
 
 if __name__ == "__main__":

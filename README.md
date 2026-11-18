@@ -45,6 +45,7 @@ uv run python tools/d2_api_probe.py                      # 框架语义实测读
 # D2 三条编排线跑同一个问句
 uv run python -m forge.cli "PRJ-1180 的进度、里程碑偏差和成本怎么样" --line plan
 uv run python -m forge.cli "PRJ-1180 进度" --line agent            # 离线打桩模型
+uv run python -m forge.cli "PRJ-1180 进度" --line agent --live --model qwen3.8-flash   # 真模型（要 .env 里的 key）
 uv run python -m forge.cli "PRJ-1180 进度" --line min              # 手写最小 ReAct 环
 uv run python -m forge.cli "帮我给 bu-beta 立项" --line plan       # 停在人工闸上
 uv run python -m forge.cli "帮我给 bu-beta 立项" --line plan --approve
@@ -137,7 +138,7 @@ uv run python tools/intake_host.py --scratch .tmp/demo --thread t1 --continue
 | ⑤ 不回归 | `uv run pytest` → **84 passed in 18.72s**（连跑两遍一致；D1 的 38 条全绿）<br>Python 3.11.15 / pydantic 2.14.3 / pytest 9.2.0 / langgraph 1.2.22 |
 | ⑥ 三方对照 | 同一问句跑 Line A / A2 / B ⇒ **10 条指标逐字一致**（`completion_rate=86.8%(33/38)`、`overdue_rate=13.2%(5/568)`…）；代价不同：**模型轮次 A=2、A2=2、B=0**，Line B 节点执行 7 步 |
 | ⑦ 脱敏 | `tests/test_d2_hygiene.py` 扫全部源文件：雇主指纹 / 真实字段名 / 人名手机号 / `sk-` 形态密钥 **0 命中**（禁词表本身按片段拼，否则清单自己就是泄露源） |
-| ⑧ 密钥 | `.env` 未被 git 跟踪；`Settings.api_key` 用 `SecretStr` 且 `exclude=True`，`repr/str/model_dump` 三条路都不出现；⛔ 任何日志与异常文本里打印 key |
+| ⑧ 密钥与真模型冒烟 | `.env` 未被 git 跟踪（`git check-ignore` 验证）；`Settings.api_key` 用 `SecretStr` 且 `exclude=True`，`repr/str/model_dump` 三条路都不出现；⛔ 任何日志与异常文本里打印 key。<br>`--live` 真模型跑通：`qwen3.8-flash` 与 `deepseek-v4.1-flash` 都能正确发出 `tool_calls` 并**逐字引用**计算层数字（`completion_rate 86.8%（33/38）`、`overdue_rate 13.2%（5/38）`，与 Line B 读数一致）。<br>⚠️ 一把百炼**子空间 key** 的实测教训：`models.list` 能列出 183 个模型但⛔ 等于有权限——`qwen-plus / qwen-max / qwen-flash` 全部 **403**、`deepseek-v3` **404**、`qwen-turbo` **429**（6 次退避重试仍限流），只有 `qwen3.8-max`、`qwen3.8-flash`、`deepseek-v4.1-flash` 可用 ⇒ ⛔ 按模型名猜可用性，必须逐个探。<br>⚠️ 还有一条：缺 `user_key`/`as_of` 时真模型**反问用户而⛔ 编一个** ⇒ 契约里"必填⛔ 推断"的写法在真模型上有效（这个行为脚本模型演不出来，是 `--live` 唯一不可替代的价值）。 |
 
 ## ⚠️ D2 最值得记的一条读数：checkpoint 的耐久性窗口
 
