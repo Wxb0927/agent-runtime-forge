@@ -12,6 +12,7 @@
 """
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Optional
 
 from langchain_core.tools import BaseTool, tool
@@ -82,3 +83,39 @@ def tools_for(skills: Optional[list[str]] = None) -> list[BaseTool]:
     if not skills:
         return [TOOLS[k] for k in sorted(TOOLS)]
     return [TOOLS[s] for s in sorted(set(skills)) if s in TOOLS]
+
+
+# ------------------------------------------------------------------ 写能力
+# ⚠️ 写操作单独成组：Line A 的 HITL 中间件与 Line B 的 interrupt 闸都只盯这一组，
+# 门口只留一个，⛔ 两处各判一次权限。
+
+
+class IntakeArgs(BaseModel):
+    project_name: str = Field(description="new project display name")
+    customer: str = Field(description="customer label, e.g. customer-07")
+    business_unit: str = Field(description="owning business unit, e.g. bu-beta")
+    user_key: str = Field(description="caller identity; recorded in the audit line")
+    as_of: str = Field(description="snapshot date YYYY-MM-DD; never inferred")
+
+
+def write_tool(scratch_dir: str | Path) -> BaseTool:
+    """绑定落盘目录后再交给图，⛔ 让模型自己挑路径（那等于绕过治理）。"""
+    root = Path(scratch_dir)
+
+    @tool("submit_intake_draft", args_schema=IntakeArgs)
+    def _submit(project_name: str, customer: str, business_unit: str,
+                user_key: str, as_of: str) -> dict[str, Any]:
+        """Create a project intake draft. WRITE operation: requires human approval upstream."""
+        from forge.graph.writes import submit_intake_draft
+
+        return submit_intake_draft(
+            {"project_name": project_name, "customer": customer,
+             "business_unit": business_unit, "as_of": as_of},
+            scratch_dir=root, actor=user_key, approved_by="human",
+            thread_id=f"{user_key}-{as_of}")
+
+    return _submit
+
+
+def all_tools(skills: list[str] | None, scratch_dir: str | Path) -> list[BaseTool]:
+    return tools_for(skills) + [write_tool(scratch_dir)]

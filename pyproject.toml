@@ -30,4 +30,9 @@ package = false
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
-addopts = "-q"
+# ⚠️ tmp_path 默认落在 C 盘用户目录下的 AppData\Local\Temp —— 本项目每个测试都要
+# 往里写 sqlite checkpoint / 交接文件 / 立项草稿，全都会堆到 C 盘。
+# 注意：pytest 9.2 里 basetemp **不是 ini 选项**（写成 ini 只会得到
+# "Unknown config option" 警告然后照样跑 C 盘），只能走命令行 ⇒ 塞进 addopts。
+# 相对路径以调用时的 cwd 为基准，所以**必须从仓库根跑**（tests/test_d2_hygiene.py 会抓）。
+addopts = "-q --basetemp=.tmp/pytest"

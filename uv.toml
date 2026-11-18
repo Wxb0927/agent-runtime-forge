@@ -1,0 +1,7 @@
+# 本项目的所有下载物一律留在 D 盘，⛔ 再往 C 盘写缓存。
+# 之前 cache-dir 靠环境变量 UV_CACHE_DIR 指到 D:/uv/cache；写进这里才是**跟着仓库走**，
+# 换机器、换 shell、CI 上都不会悄悄退回 C 盘默认位置。
+cache-dir = "D:/uv/cache"
+# ⚠️ python-install-dir ⛔ 不是合法的 uv.toml 键（uv 会整份拒绝并报错，实测）；
+#    解释器位置只能用环境变量 UV_PYTHON_INSTALL_DIR 或 --python-install-dir 指定。
+#    当前解释器在 C 盘占 80 MB，是 D1 装的，搬走要重建 .venv，暂不动（README 有说明）。
