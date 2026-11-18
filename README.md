@@ -160,6 +160,7 @@ uv run python tools/intake_host.py --scratch .tmp/demo --thread t1 --continue
 3. **变异"还原原样"悄悄改了行尾**：文本模式写文件在 Windows 会把换行译成 CRLF，`git status` 里整文件变红而真内容一处没动 ⇒ 改成**按字节**备份/还原，并把工作区 12 个 CRLF 文件归一回 LF。
 4. **汇总计数报 5/5 而实际跑了 11 条**：给工具加第二批变异时漏改统计口径。一个"证明测试能失败"的工具自己报出错数，比没测更糟。
 5. `basetemp` 写成 ini 选项 → pytest 9.2 报 `Unknown config option` 然后**照样跑 C 盘**；只能走命令行。现在 `addopts` 里钉死 `.tmp/pytest`，并有 `tests/test_d2_hygiene.py` 断言 `tmp_path` 落在项目盘内。
+6. **变异锚点会过期**：M3 原本咬的是 `intake_host` 里一整行 `compile(...)` 调用，后来我给那行加了个参数、把它拆成两行，锚点就失效了——工具按"锚点找不到 = 变异没生效 = 假能失败"报 `10/11`，⛔ 把它算成通过。修法是把锚点缩短（只咬 `compile(checkpointer=saver)`），并给工具加关键字过滤器，让"复验一条"⛔ 等十分钟。**锚点越长越脆，这是这类工具的固有失效模式。**
 
 ## 缓存与磁盘占用（⛔ 悄悄写系统盘）
 
