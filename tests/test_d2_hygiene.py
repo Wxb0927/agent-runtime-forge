@@ -27,7 +27,7 @@ BANNED_TOKENS = (
     _t("孟", "腾"), _t("易", "之德"), _t("H", "RM"), _t("Q", "MS"),
     _t("王", "晓斌"), _t("189", "3911", "767", "5"),
 )
-SOURCE_DIRS = ("forge", "tests", "tools", "data", "contracts")
+SOURCE_DIRS = ("forge", "tests", "tools", "data", "contracts", "eval")
 SOURCE_FILES = ("README.md", "pyproject.toml", "uv.toml", ".gitignore", "uv.lock")
 
 

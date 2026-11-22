@@ -132,7 +132,35 @@ MUTATIONS_D3: list[tuple[str, str, str, str, str]] = [
      'test_g2_fails_when_registry_loses_a_metric'),
 ]
 
-ALL_MUTATIONS = MUTATIONS + MUTATIONS_D2 + MUTATIONS_D3
+# --------------------------------------------------------------------------
+# D4 组：评测器自己（规则评分 / judge / 回归差集 / 矩阵轴 / 失败归类）
+# ⚠️ 这一组专门回答"你的评测凭什么可信"：每条评测规则都被改坏过一次，改歪必红。
+# --------------------------------------------------------------------------
+
+MUTATIONS_D4: list[tuple[str, str, str, str, str]] = [
+    ('M11 规则评分去掉禁词检查',
+     'eval/rules.py', '    if hits:', '    if False:',
+     'test_rules_catch_banned_words'),
+    ('M12 去掉"无数据必须在答案里点名"的检查',
+     'eval/rules.py', '            if m["name"] not in answer:', '            if False:',
+     'test_rules_catch_missing_no_data_disclosure'),
+    ('M13 judge 把无出处的数字也放行',
+     'eval/judge.py', '"fabricated": not hits}', '"fabricated": False}',
+     'test_judge_flags_numbers_with_no_source_line'),
+    ('M14 回归差集把未登记变化一律当已登记',
+     'eval/diff.py', '    registered = case_id in known', '    registered = True',
+     'test_diff_flags_unregistered_change_as_new_red'),
+    ('M15 矩阵横轴改成挑几个域（人挑题回潮）',
+     'eval/phrasings.py', '    return M.declared_metrics()',
+     '    return M.declared_metrics()[:3]',
+     'test_matrix_domains_come_from_the_registry'),
+    ('M16 失败归类把"上下文污染"降级成"弃权边界"',
+     'eval/classify.py', 'PRIORITY = ("上下文污染", "数据缺失", "参数错误", "弃权边界")',
+     'PRIORITY = ("弃权边界", "参数错误", "数据缺失", "上下文污染")',
+     'test_classify_prioritizes_pollution_over_abstain'),
+]
+
+ALL_MUTATIONS = MUTATIONS + MUTATIONS_D2 + MUTATIONS_D3 + MUTATIONS_D4 + MUTATIONS_D4
 
 
 def run_pytest(k: str) -> int:
@@ -151,9 +179,8 @@ def main(argv: list[str] | None = None) -> int:
         print("没有变异匹配这些关键字：", " ".join(wanted))
         return 1
     for i, (name, rel, old, new, test_id) in selected:
-        group = ("D1" if i < len(MUTATIONS)
-                 else "D2" if i < len(MUTATIONS) + len(MUTATIONS_D2)
-                 else "D3")
+        n1, n2, n3 = len(MUTATIONS), len(MUTATIONS_D2), len(MUTATIONS_D3)
+        group = "D1" if i < n1 else "D2" if i < n1 + n2 else "D3" if i < n1 + n2 + n3 else "D4"
         path = ROOT / rel
         # ⚠️ 必须**按字节**备份再还原：文本模式写文件在 Windows 上会把换行
         #    翻译成 CRLF，"还原原样"于是悄悄改了全文件行尾
@@ -176,9 +203,9 @@ def main(argv: list[str] | None = None) -> int:
         if not ok:
             failures.append(name)
     print()
-    print("能失败检查: %d/%d 通过（本仓库共 %d 条：D1 %d + D2 %d + D3 %d）"
+    print("能失败检查: %d/%d 通过（本仓库共 %d 条：D1 %d + D2 %d + D3 %d + D4 %d）"
           % (len(selected) - len(failures), len(selected), len(ALL_MUTATIONS),
-             len(MUTATIONS), len(MUTATIONS_D2), len(MUTATIONS_D3)))
+             len(MUTATIONS), len(MUTATIONS_D2), len(MUTATIONS_D3), len(MUTATIONS_D4)))
     if wanted:
         print("   （已按关键字过滤：%s）" % " ".join(wanted))
     return 1 if failures else 0

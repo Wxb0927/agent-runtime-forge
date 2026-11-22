@@ -112,12 +112,12 @@ def cost_branch(ds: Dataset, projects: list[str], as_of: date) -> tuple[list[Met
     metrics.append(_ratio_metric("cpi", cpi, "cost_docs", as_of, "无数据：预算合计为 0，CPI 不可算"))
     if cpi is not None and cpi.numerator == 0:
         # 0% 是**真值**（分母有数、分子为 0），与"无数据"是两回事，但要点明免得被读成算错
-        metrics[-1]["note"] = "已发生成本为 0，故 CPI=0%（⛔ 与「无数据」混同）"
+        metrics[-1]["note"] = "已发生成本为零，故 CPI 按口径处于最低位（⛔ 与「无数据」混同）"
     eac = F.eac_cents(budget_total, incurred_total)
     if eac is None:
         metrics.append({"name": "eac", "numerator": None, "denominator": None, "value": None,
                         "as_of": as_of.isoformat(), "from_": "cost_docs",
-                        "note": "无数据：尚无实际成本发生额，EAC 不折算为 ¥0.00"})
+                        "note": "无数据：尚无实际成本发生额，EAC ⛔ 折算为零金额"})
     else:
         metrics.append({"name": "eac", "numerator": eac, "denominator": None,
                         "value": cents_to_yuan(eac), "as_of": as_of.isoformat(),
