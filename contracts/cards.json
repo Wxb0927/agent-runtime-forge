@@ -1,0 +1,171 @@
+{
+ "cost": {
+  "derived_from": {
+   "enums.metric": "AST(forge/graph/compute.py) + domain.models.BudgetSubject",
+   "params": "forge/contract/cards.py::SkillIntent",
+   "skills": "forge/graph/compute.py::BRANCH_COMPUTE"
+  },
+  "enums": {
+   "metric": [
+    "budget_execution[labor]",
+    "budget_execution[manufacturing]",
+    "budget_execution[material]",
+    "budget_execution[misc]",
+    "cpi",
+    "eac"
+   ],
+   "skill": [
+    "cost",
+    "deviation",
+    "stats"
+   ]
+  },
+  "host_injected": {
+   "as_of": {
+    "default": "2026-10-30",
+    "note": "由宿主注入，⛔ 由模型填写"
+   },
+   "seed": {
+    "default": 42,
+    "note": "由宿主注入，⛔ 由模型填写"
+   },
+   "user_key": {
+    "default": "u0000",
+    "note": "由宿主注入，⛔ 由模型填写"
+   }
+  },
+  "name": "cost",
+  "params": {
+   "metric": {
+    "description": "要查的指标名，合法值见 enums.metric（由代码派生）",
+    "required": true,
+    "type": "string"
+   },
+   "project": {
+    "default": null,
+    "description": "项目码，如 PRJ-1180；省略=全部可见项目",
+    "required": false,
+    "type": "string"
+   },
+   "topK": {
+    "default": 10,
+    "description": "最多返回几行，1..50；越界**钳位**并说明，⛔ 报错",
+    "max": 50,
+    "min": 1,
+    "required": false,
+    "type": "integer"
+   }
+  },
+  "summary": "成本执行：预算执行率（逐科目）+ CPI + EAC。⚠️ shipment 单据不参与成本加总（真实口径）。"
+ },
+ "deviation": {
+  "derived_from": {
+   "enums.metric": "AST(forge/graph/compute.py) + domain.models.BudgetSubject",
+   "params": "forge/contract/cards.py::SkillIntent",
+   "skills": "forge/graph/compute.py::BRANCH_COMPUTE"
+  },
+  "enums": {
+   "metric": [
+    "max_milestone_deviation_days",
+    "milestone_offschedule_rate"
+   ],
+   "skill": [
+    "cost",
+    "deviation",
+    "stats"
+   ]
+  },
+  "host_injected": {
+   "as_of": {
+    "default": "2026-10-30",
+    "note": "由宿主注入，⛔ 由模型填写"
+   },
+   "seed": {
+    "default": 42,
+    "note": "由宿主注入，⛔ 由模型填写"
+   },
+   "user_key": {
+    "default": "u0000",
+    "note": "由宿主注入，⛔ 由模型填写"
+   }
+  },
+  "name": "deviation",
+  "params": {
+   "metric": {
+    "description": "要查的指标名，合法值见 enums.metric（由代码派生）",
+    "required": true,
+    "type": "string"
+   },
+   "project": {
+    "default": null,
+    "description": "项目码，如 PRJ-1180；省略=全部可见项目",
+    "required": false,
+    "type": "string"
+   },
+   "topK": {
+    "default": 10,
+    "description": "最多返回几行，1..50；越界**钳位**并说明，⛔ 报错",
+    "max": 50,
+    "min": 1,
+    "required": false,
+    "type": "integer"
+   }
+  },
+  "summary": "里程碑偏差：脱期里程碑占比 + 最大偏差天数（偏差天数是整数，⛔ 让模型做减法）。"
+ },
+ "stats": {
+  "derived_from": {
+   "enums.metric": "AST(forge/graph/compute.py) + domain.models.BudgetSubject",
+   "params": "forge/contract/cards.py::SkillIntent",
+   "skills": "forge/graph/compute.py::BRANCH_COMPUTE"
+  },
+  "enums": {
+   "metric": [
+    "completion_rate",
+    "overdue_rate"
+   ],
+   "skill": [
+    "cost",
+    "deviation",
+    "stats"
+   ]
+  },
+  "host_injected": {
+   "as_of": {
+    "default": "2026-10-30",
+    "note": "由宿主注入，⛔ 由模型填写"
+   },
+   "seed": {
+    "default": 42,
+    "note": "由宿主注入，⛔ 由模型填写"
+   },
+   "user_key": {
+    "default": "u0000",
+    "note": "由宿主注入，⛔ 由模型填写"
+   }
+  },
+  "name": "stats",
+  "params": {
+   "metric": {
+    "description": "要查的指标名，合法值见 enums.metric（由代码派生）",
+    "required": true,
+    "type": "string"
+   },
+   "project": {
+    "default": null,
+    "description": "项目码，如 PRJ-1180；省略=全部可见项目",
+    "required": false,
+    "type": "string"
+   },
+   "topK": {
+    "default": 10,
+    "description": "最多返回几行，1..50；越界**钳位**并说明，⛔ 报错",
+    "max": 50,
+    "min": 1,
+    "required": false,
+    "type": "integer"
+   }
+  },
+  "summary": "进度统计：完成率 + 逾期率（分母只算\"计划上应完成\"的那批）。"
+ }
+}

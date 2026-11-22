@@ -17,7 +17,7 @@
 |---|---|---|
 | D1 | 领域模型 + 确定性合成数据 + "能失败"的测试骨架 | ✅ 完成（2026-11-16） |
 | D2 | LangGraph 图式编排，含真实竞态的解法 + checkpointer + interrupt | ✅ 完成（2026-11-18） |
-| D3 | 工具契约层等价实现 + MCP Server | ⏳ 未开始 |
+| D3 | 工具契约层等价实现 + MCP Server | ✅ 契约层完成（2026-11-22）；MCP 封装按任务书属 D5，⛔ 提前做 |
 | D4 | 评估流水线（规则评分 / LLM-as-Judge / 回归差集 / 覆盖率矩阵 / PR 前检查） | ⏳ 未开始 |
 | D5 | RAG 检索线（本地 BGE-M3 混合检索 + Reranker + 300 条业务 QA 评估集） | ⏳ 未开始 |
 | D6 | FastAPI + SSE 服务化与可观测 | ⏳ 未开始 |
@@ -49,6 +49,11 @@ uv run python -m forge.cli "PRJ-1180 进度" --line agent --live --model qwen3.8
 uv run python -m forge.cli "PRJ-1180 进度" --line min              # 手写最小 ReAct 环
 uv run python -m forge.cli "帮我给 bu-beta 立项" --line plan       # 停在人工闸上
 uv run python -m forge.cli "帮我给 bu-beta 立项" --line plan --approve
+# 契约层自查（D3）：菜单自吐 / 意图校验 / 三道门禁
+uv run python -m forge.cli --describe stats                       # 说明书由代码派生
+uv run python -m forge.cli --intent '{"metric":"conplte_rate","topK":999}'   # ⇒ BAD_INTENT + 钳位 + 回带枚举（退出码 2）
+uv run python -m forge.cli --gates                                # G1/G2/G3，任一失败 exit 1
+
 # 跨进程断点续办（真进程、硬杀）
 uv run python tools/intake_host.py --scratch .tmp/demo --thread t1 --crash-in-verify 1.5
 uv run python tools/intake_host.py --scratch .tmp/demo --thread t1 --continue
@@ -168,3 +173,78 @@ uv run python tools/intake_host.py --scratch .tmp/demo --thread t1 --continue
 - 依赖缓存：`uv.toml` 里 `cache-dir = "D:/uv/cache"`（跟着仓库走，⛔ 依赖环境变量）。
 - 测试临时文件：`--basetemp=.tmp/pytest`（项目内，已 gitignore）。
 - `python-install-dir` ⛔ 不是合法的 `uv.toml` 键（uv 会整份拒绝并报 `unknown field`，实测），解释器位置只能用 `UV_PYTHON_INSTALL_DIR` 指定。
+
+---
+
+# D3 · 工具契约层（自研三柱的等价实现）
+
+## 三柱的对应关系
+
+| 原实现（零依赖 Node，技能=一次性 CLI） | 本仓库（`forge/contract/`） | 共同要解决的问题 |
+|---|---|---|
+| `cards.json` 菜单自吐 | `contracts/cards.json`（**生成物**，像锁文件）+ `describe()` | 平台不把技能描述送进上下文 ⇒ 说明书必须由技能**自己吐出来** |
+| `--describe` 代码派生自描述 | Pydantic 模型 + `compute.py` 的 **AST 解析** + `inspect` 函数签名 | 手抄的说明书必然与实现分叉 |
+| `--intent` 字典校验 + `BAD_INTENT` 自愈 | `intent.validate()` / `intent.run()` | 非法参数**点名**、越界**钳位**、回带合法枚举让宿主一轮改完 |
+
+## 派生链：⛔ 第二份清单
+
+`describe()` 的每个字段都有唯一代码来源，⛔ 任何一处由我手写常量：
+
+- **参数名 / 必填 / 默认值 / 上下限** ← `SkillIntent`（`le`/`ge` 从 `FieldInfo.metadata` 取）
+- **`metric` 合法枚举** ← AST 解析 `forge/graph/compute.py`，按 `<分支>_branch` 收
+  `_ratio_metric("…")` 第一参数与 `{"name": "…"}` 字面量；带科目后缀的从 `BudgetSubject` 枚举展开
+- **`summary`** ← compute 函数 docstring 第一行
+- **`host_injected`（身份 / 基准日 / seed）** ← `inspect.signature(run)`
+
+⚠️ 中途我一度把这根柱子写脏了：第一版 `metrics.py` 里有一份 `STATIC_METRICS = {"stats": ("completion_rate", ...)}`
+**手抄清单**，正好违反该模块自己第一段写的规矩 ⇒ 改成 AST 解析。这条留在这里当证据：**"没有第二份清单"要靠机制，⛔ 靠自觉**。
+
+## 四条校验语义（每条都有对应用例）
+
+1. **未知键：丢弃 + 点名，但继续执行**（任务书原话"非法键丢弃并点名"）。
+   ⛔ 静默忽略——那会让"参数没生效"伪装成"数据就是这个值"；
+   ⛔ 一个多余键毁掉整次查询——那把"参数写错"升级成"服务不可用"。
+2. **非法枚举值：报 `BAD_INTENT` 并回带全部合法值**；⛔ 猜测、⛔ 模糊匹配、⛔ 编辑距离自动纠正
+   （大小写、连字符、前缀、中文别名一律按非法处理，见 `test_typos_are_never_guessed` 的 6 个参数）。
+   理由：猜出来的数字看起来最像真的，也最危险。
+3. **越界：钳位 + 说明**（钳位是**合法语义**，报错才是事故）。
+4. **一次报全所有问题**：真实教训——校验器在第一个错误就抛，宿主每轮只能修一个，
+   连烧三轮才跑通。这里 `{"metric":"conplte_rate","topK":999}` 一次给出"metric 非法 + topK 钳位"。
+
+⚠️ **权限接缝**：`run()` 内部照样过 `guard.decide` ⇒ 契约层⛔ 是绕过权限的后门，越权点名返回
+`NOT_IN_SCOPE` 且 `digest=[]`。
+⚠️ **信封不自扩字段**：§3.4 定死 `{ok,code,message,digest[],notes[],answer}`，自愈信息编码进
+`notes` 的 `heal:{...}` 行（`parse_heal()` 取回），⛔ 为了内部方便就加第七个字段。
+
+## 三道门禁，且"门禁自己能失败"
+
+| 门禁 | 挡的事故 | 失败注入证明 |
+|---|---|---|
+| **G1** `describe` 参数与上限 == `validate` 真接受的 | 说明书写 `topK`、代码只认 `top_k`；写 `1..50`、代码钳 `20` | `test_g1_fails_when_*`（注入坏卡片）+ M9 |
+| **G2** AST 登记枚举 == 计算层实跑并集 | 加指标忘登记 / 登记了公式没落地 | `test_g2_fails_when_registry_{loses,invents}_a_metric` + M10 |
+| **G3** `contracts/cards.json` == 当下代码派生 | 改了代码⛔ 重生成菜单，线上跑过期说明书 | `test_g3_fails_on_a_stale_menu` + **M9**（真去改 cards.json） |
+
+跑法：`uv run python -m forge.contract.gates`（任一失败 `exit 1`，这是 D4"PR 前自动检查"的雏形）。
+
+## D3 验收读数（2026-11-22，真实输出）
+
+| 判据 | 结果 |
+|---|---|
+| 任务书验收① `{"metric":"conplte_rate","topK":999}` | `code=BAD_INTENT`；message 只报 `metric 非法`；notes 含 `CLAMPED topK 999→50（上限 50）`；`heal.metric` 回带 **10** 个合法值；`digest=[]`（⛔ 被执行） |
+| 任务书验收② 改成"未知名当默认值" | 变异 **M6** ⇒ `test_acceptance_case_names_only_the_illegal_metric` **转红**（rc=1），改回 **转绿**（rc=0） |
+| 注册表派生 | AST 解析出 **10** 个指标，与实跑并集**逐字相等**（G2 绿）；科目后缀来自 `BudgetSubject`，⛔ 手抄 |
+| 卡片派生 | 3 张卡片；`params` 来自 `SkillIntent`（`topK.min=1 / max=50`）、`summary` 来自 compute docstring、`host_injected` 来自 `run()` 签名 |
+| 契约测试 | 本组 **26** 条（`test_contract_describe / intent / gates`）；全仓库 **130 passed**（D1+D2 的 84 条无回归） |
+| 能失败 | 变异总数 **16**（D1 5 + D2 6 + D3 5）⇒ 全量复跑 **16/16 通过**，每条"改歪 rc=1 / 改回 rc=0"，跑完 `git status` 只剩应提交的文件（字节级还原无残留） |
+
+## D3 踩过的坑（三条，全是自己的错）
+
+1. **假变异**：M6 第一版只把 `heal["metric"]=declared` 改成填默认值，却**没撤销那句"metric 非法"**
+   ⇒ 变异体仍然报错、仍然"正确拒绝"，测试当然照绿。**变异没改变被测行为，就根本不是变异**——
+   这类"假能失败"比没测更糟，因为它给了信心。
+2. **别用 shell 转义改源码**：三次通过 `python -c` / heredoc 打补丁，把 `\n` 展开成真实换行、
+   把 `/` 变成 `-`，写坏过 `cli.py`、`mutation_check.py`、测试文件各一次。⇒ 改源码只用 Edit/Write 工具。
+3. **⛔ 相信"看起来是 X"**：为追查"合法日期被判非法"我查了字节码缓存、`intent.date` 是否被替换、
+   同形字符——最后用 `list(字符数组)` 才看清那串是 `2026/10/30`（斜杠），**输出通道把 `/` 渲染成了 `-`**。
+   测试从头到尾是对的，我的眼睛不是。⇒ 于是补了 `test_bad_date_samples_are_really_bad`（坏样例必须真的解析不了）
+   和 `test_control_date_must_itself_be_valid`（对照组必须为真）——**把"我看过了"换成"机器断言过"**。

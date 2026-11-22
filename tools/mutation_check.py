@@ -100,7 +100,39 @@ MUTATIONS_D2: list[tuple[str, str, str, str, str]] = [
      'test_independent_channels_survive_fanout'),
 ]
 
-ALL_MUTATIONS = MUTATIONS + MUTATIONS_D2
+# --------------------------------------------------------------------------
+# D3 组：契约层（非法枚举自愈 / 钳位语义 / 未知键点名 / 菜单新鲜度 / G2 相等判断）
+# --------------------------------------------------------------------------
+
+MUTATIONS_D3: list[tuple[str, str, str, str, str]] = [
+    ('M6 未知名当默认值（任务书点名的那条）',
+     'forge/contract/intent.py',
+     '            heal["metric"] = declared',
+     '            problems.clear(); clean["metric"] = declared[0]',
+     'test_acceptance_case_names_only_the_illegal_metric'),
+    ('M7 越界改成直接报错（丢掉钳位语义）',
+     'forge/contract/intent.py',
+     '                clamps.append(msg)',
+     '                problems.append(msg)',
+     'test_out_of_range_is_clamped_not_rejected'),
+    ('M8 未知键静默忽略（不再点名）',
+     'forge/contract/intent.py',
+     '    notes += [f"DROPPED:{k}" for k in v["drops"]]',
+     '    notes += []',
+     'test_unknown_key_is_named_but_execution_continues'),
+    ('M9 说明书过期：把 cards.json 的上限改成 500 而不重生成',
+     'contracts/cards.json',
+     '"max": 50',
+     '"max": 500',
+     'test_cards_json_matches_live_derivation'),
+    ('M10 弱化 G2：注册表与实跑不再要求相等',
+     'forge/contract/metrics.py',
+     '    if declared != produced:',
+     '    if False:',
+     'test_g2_fails_when_registry_loses_a_metric'),
+]
+
+ALL_MUTATIONS = MUTATIONS + MUTATIONS_D2 + MUTATIONS_D3
 
 
 def run_pytest(k: str) -> int:
@@ -119,7 +151,9 @@ def main(argv: list[str] | None = None) -> int:
         print("没有变异匹配这些关键字：", " ".join(wanted))
         return 1
     for i, (name, rel, old, new, test_id) in selected:
-        group = "D1" if i < len(MUTATIONS) else "D2"
+        group = ("D1" if i < len(MUTATIONS)
+                 else "D2" if i < len(MUTATIONS) + len(MUTATIONS_D2)
+                 else "D3")
         path = ROOT / rel
         # ⚠️ 必须**按字节**备份再还原：文本模式写文件在 Windows 上会把换行
         #    翻译成 CRLF，"还原原样"于是悄悄改了全文件行尾
@@ -142,9 +176,9 @@ def main(argv: list[str] | None = None) -> int:
         if not ok:
             failures.append(name)
     print()
-    print("能失败检查: %d/%d 通过（本仓库共 %d 条：D1 %d + D2 %d）"
+    print("能失败检查: %d/%d 通过（本仓库共 %d 条：D1 %d + D2 %d + D3 %d）"
           % (len(selected) - len(failures), len(selected), len(ALL_MUTATIONS),
-             len(MUTATIONS), len(MUTATIONS_D2)))
+             len(MUTATIONS), len(MUTATIONS_D2), len(MUTATIONS_D3)))
     if wanted:
         print("   （已按关键字过滤：%s）" % " ".join(wanted))
     return 1 if failures else 0

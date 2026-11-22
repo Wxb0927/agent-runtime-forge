@@ -141,7 +141,46 @@ def run_react(which: str, query: str, *, user: str, seed: int, as_of: str,
     return 0
 
 
+def run_contract(argv: list[str]) -> int:
+    """契约层自查入口：``--describe`` 看菜单、``--intent '{...}'`` 跑一次校验。
+
+    对齐公司那套 CLI 的 ergonomics（技能自带 `--describe`、宿主传 `--intent`），
+    这样"说明书由代码吐出来"是可以当场演示的，⛔ 只写在 README 里。
+    """
+    import json
+
+    from forge.contract import cards as C
+    from forge.contract import gates as G
+    from forge.contract import intent as I
+
+    if argv and argv[0] == "--describe":
+        skill = argv[1] if len(argv) > 1 else None
+        print(json.dumps(C.describe(skill), ensure_ascii=False, indent=1))
+        return 0
+    if argv and argv[0] == "--intent":
+        raw = argv[1] if len(argv) > 1 else "{}"
+        try:
+            intent = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            print(f"意图 JSON 解析失败：{exc}")
+            return 2
+        host = {"user_key": "u0000", "as_of": AS_OF.isoformat(), "seed": 42}
+        for pair in argv[2:]:
+            k, _, v = pair.partition("=")
+            host[k] = int(v) if v.isdigit() else v
+        env = I.run(intent, **host)
+        print(json.dumps(env, ensure_ascii=False, indent=1))
+        return 0 if env["ok"] else 2
+    if argv and argv[0] == "--gates":
+        return G.main([])
+    print("用法: python -m forge.cli --describe [skill] | --intent '{json}' [user_key=.. as_of=..] | --gates")
+    return 2
+
+
 def main(argv: Optional[list[str]] = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] in ("--describe", "--intent", "--gates"):
+        return run_contract(argv)
     ap = argparse.ArgumentParser(prog="forge.cli", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("query")
