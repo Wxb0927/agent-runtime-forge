@@ -160,7 +160,44 @@ MUTATIONS_D4: list[tuple[str, str, str, str, str]] = [
      'test_classify_prioritizes_pollution_over_abstain'),
 ]
 
-ALL_MUTATIONS = MUTATIONS + MUTATIONS_D2 + MUTATIONS_D3 + MUTATIONS_D4 + MUTATIONS_D4
+# --------------------------------------------------------------------------
+# D5 组：RAG 线与 MCP 等价性（分块可回溯 / 融合去重 / 重排不许冒充 / 枚举手抄 / gold 映射）
+# --------------------------------------------------------------------------
+
+MUTATIONS_D5: list[tuple[str, str, str, str, str]] = [
+    ('M17 重排器缺失时静默退化成 hybrid（拿 hybrid 分数冒充 rerank）',
+     'forge/rag/retrieve.py',
+     '            raise RuntimeError("mode=hybrid+rerank 需要 reranker；本次未加载")',
+     '            return pool[:k]',
+     'test_rerank_mode_refuses_to_lie'),
+    ('M18 RRF 只看每路第一名（融合退化、去重与出处标记失效）',
+     'forge/rag/retrieve.py',
+     '        for rank, hit in enumerate(lst):',
+     '        for rank, hit in enumerate(lst[:1]):',
+     'test_hybrid_dedupes_and_marks_provenance'),
+    ('M19 定长分块丢字（步长翻倍，覆盖率不再等于原文）',
+     'forge/rag/chunk.py',
+     '        pieces = [full[i:i + size] for i in range(0, max(len(full) - overlap, 1), step)]',
+     '        pieces = [full[i:i + size] for i in range(0, len(full), size * 2)]',
+     'test_fixed_chunks_overlap_never_loses_text'),
+    ('M20 分词退化：整句当一个词（BM25 再也匹配不上术语）',
+     'forge/rag/retrieve.py',
+     '    out: list[str] = []',
+     '        return [text]',
+     'test_bm25_finds_the_exact_term'),
+    ('M21 MCP 的合法枚举手抄一份（与 D3 卡片分叉）',
+     'forge/mcp/manifest.py',
+     '            entry["enum"] = card["enums"]["metric"]',
+     '            entry["enum"] = ["completion_rate"]',
+     'test_mcp_manifest_is_derived_from_d3_cards'),
+    ('M22 gold→章 映射失效（题目悬空无人发现）',
+     'forge/rag/corpus.py',
+     '    for ch in chapters():',
+     '    for ch in []:',
+     'test_gold_chapter_is_retrievable_in_principle'),
+]
+
+ALL_MUTATIONS = MUTATIONS + MUTATIONS_D2 + MUTATIONS_D3 + MUTATIONS_D4 + MUTATIONS_D5 + MUTATIONS_D4
 
 
 def run_pytest(k: str) -> int:
@@ -179,8 +216,9 @@ def main(argv: list[str] | None = None) -> int:
         print("没有变异匹配这些关键字：", " ".join(wanted))
         return 1
     for i, (name, rel, old, new, test_id) in selected:
-        n1, n2, n3 = len(MUTATIONS), len(MUTATIONS_D2), len(MUTATIONS_D3)
-        group = "D1" if i < n1 else "D2" if i < n1 + n2 else "D3" if i < n1 + n2 + n3 else "D4"
+        n1, n2, n3, n4 = (len(MUTATIONS), len(MUTATIONS_D2), len(MUTATIONS_D3), len(MUTATIONS_D4))
+        group = ("D1" if i < n1 else "D2" if i < n1 + n2 else "D3" if i < n1 + n2 + n3
+                 else "D4" if i < n1 + n2 + n3 + n4 else "D5")
         path = ROOT / rel
         # ⚠️ 必须**按字节**备份再还原：文本模式写文件在 Windows 上会把换行
         #    翻译成 CRLF，"还原原样"于是悄悄改了全文件行尾
@@ -203,9 +241,10 @@ def main(argv: list[str] | None = None) -> int:
         if not ok:
             failures.append(name)
     print()
-    print("能失败检查: %d/%d 通过（本仓库共 %d 条：D1 %d + D2 %d + D3 %d + D4 %d）"
+    print("能失败检查: %d/%d 通过（本仓库共 %d 条：D1 %d + D2 %d + D3 %d + D4 %d + D5 %d）"
           % (len(selected) - len(failures), len(selected), len(ALL_MUTATIONS),
-             len(MUTATIONS), len(MUTATIONS_D2), len(MUTATIONS_D3), len(MUTATIONS_D4)))
+             len(MUTATIONS), len(MUTATIONS_D2), len(MUTATIONS_D3), len(MUTATIONS_D4),
+             len(MUTATIONS_D5)))
     if wanted:
         print("   （已按关键字过滤：%s）" % " ".join(wanted))
     return 1 if failures else 0

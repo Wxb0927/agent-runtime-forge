@@ -63,11 +63,20 @@ def test_independent_channels_survive_fanout(tmp_path: Path) -> None:
 # --------------------------------------------------------------- 2 事故形状
 
 
-def test_bug_shape_drifts_the_source_marker_silently(tmp_path: Path) -> None:
-    """共写同一份交接文件 ⇒ 两条分支都跑过，但只剩一个来源标记（数据对、标签漂）。
+def test_bug_shape_never_lets_both_markers_survive(tmp_path: Path) -> None:
+    """共写同一份交接文件 ⇒ 下游**永远拿不到两条完整来源标记**。
 
     两路用 ``threading.Barrier`` 强制在读-改-写中段相遇：跑成串行会直接超时失败，
     ⛔ 靠 sleep 碰运气（那样测出来的红是抖动，不是证据）。
+
+    ⚠️ 这条测试改过两次，两次都是被现实打脸：
+    * 第一版只断言"``from``/``step`` 两个字段被覆盖"——实测更狠：**整份文档被后写者换掉**
+      （连"两条分支都跑过"的记录都只剩一路）。
+    * 第二版把断言写死成"文件能解析且 branches 只剩 1 个"——满载时偶发 ``JSONDecodeError``。
+      那⛔ 是 flaky：并发非原子的 ``write_text`` 本来就可能把文件写坏。
+    ⇒ 所以这里断言的是**唯一真正成立的不变量**：事故形状下两条来源标记**不可能同时完整**；
+      其表现形式要么是覆盖/丢记录，要么是文件损坏到无法解析。两种都算复现成功，
+      而"修复形状"必须**永远**不出现这两种结局（见 test_independent_channels_survive_fanout）。
     """
     bar = threading.Barrier(2, timeout=5.0)
     reached: list[str] = []
@@ -78,28 +87,39 @@ def test_bug_shape_drifts_the_source_marker_silently(tmp_path: Path) -> None:
 
     app = build_plan_graph(handoff_mode="shared", scratch_dir=tmp_path,
                            interleave_hook=hook).compile()
-    out = app.invoke(base_state("bug-1"))
+    try:
+        out = app.invoke(base_state("bug-1"))
+        crash: Exception | None = None
+    except Exception as exc:  # noqa: BLE001
+        out, crash = None, exc
+
     assert sorted(reached) == ["deviation", "stats"], f"两路没真并发：{reached}"
 
-    raw = json.loads(next(Path(tmp_path).glob("*.json")).read_text(encoding="utf-8"))
-    # ⚠️ 实测比预想更狠：读-改-写整体覆盖，后写者把先写者的**整份文档**换掉了
-    #    （连 branches 列表都只剩一个），⛔ 只是 from/step 两个字段被改。
-    assert len(raw["branches"]) == 1, f"预期丢一整段记录，实际 branches={raw['branches']}"
-    assert raw["from"] in ("task_table", "milestone_table") and raw["step"] in (1, 2)
+    if crash is not None:
+        # 结局①：文件被并发写坏，下游（fanin 回读）当场炸
+        assert "json" in type(crash).__module__ or isinstance(crash, ValueError), repr(crash)
+        return
 
-    # 关键症状：**取数是对的**（通道里两条都健在），漂的只是下游读到的来源标签
+    # 结局②：静默漂移（这才是当年能活到线上的那种）
+    assert out["envelope"]["ok"] is True, "漂了还不报错，正是原事故的隐蔽性所在"
+    # 关键症状：**取数是对的**（图内通道两条都健在），坏的只是下游读到的那份共享状态
     assert out["stats"]["from_"] == "task_table" and out["deviation"]["from_"] == "milestone_table"
-    assert not markers_intact(out), "事故形状下竟然没漂 —— 说明这个复现失效了"
-    drifted = [b for b in ("stats", "deviation")
-               if out["handoff"][b]["from"] != EXPECT[b][0]]
-    assert drifted and len(drifted) < 2, f"应当恰好一路漂掉，实际 {drifted}"
-    # 而且漂掉的那一路**不会报错**：静默，这才是它当年能活到线上的原因
-    assert out["envelope"]["ok"] is True
+    assert not markers_intact(out), "事故形状下竟然没漂 ⇒ 这个复现失效了"
 
+    files = list(Path(tmp_path).glob("*.json"))
+    assert files, "事故形状应该留下了交接文件"
+    text = files[0].read_text(encoding="utf-8")
+    try:
+        raw = json.loads(text)
+    except json.JSONDecodeError:
+        return                                     # 文件损坏也算"两条标记没同时活着"
+    assert len(raw.get("branches", [])) <= 1, f"预期丢一整段记录，实际 {raw.get('branches')}"
+    assert raw.get("from") in ("task_table", "milestone_table")
+    drifted = [b for b in ("stats", "deviation")
+               if (out["handoff"].get(b) or {}).get("from") != EXPECT[b][0]]
+    assert drifted, f"下游 handoff 里两条标记都完好？复现失效：{out['handoff']}"
 
 # --------------------------------------------------------------- 3 框架保护
-
-
 class _OneKey(TypedDict, total=False):
     handoff: dict
 
