@@ -119,9 +119,9 @@ MCP 面把未知参数**静默忽略**，自研 `--intent` 面会 `DROPPED:` 点
 | D4 | 评估流水线（规则评分 / LLM-as-Judge / 回归差集 / 覆盖率矩阵 / PR 前检查） | ✅ 完成（2026-11-22），80 格矩阵 + 86 条语料 + 28/28 变异 |
 | D5 | RAG 检索线（本地 BGE 混合检索 + Reranker + 300 条业务 QA 评估集） | ✅ 完成（2026-11-23）：327 条 QA、**语义档 BGE + faiss + jieba 实跑**、MCP 真协议往返 9/9，两份报告并存（hash / semantic） |
 | D6 | FastAPI + SSE 服务化与可观测 | ✅ 完成（2026-11-23）：容器端到端已验证，compose 热态 **P95 77.9 ms**（`eval/latency.md`） |
-| D7 | 架构图、指标表、讲解稿 | ⏳ 未开始 |
+| D7 | 架构图、指标表、讲解稿 | ✅ 内容完成（架构/职责表/指标总表/三个取舍/边界/两份讲解稿/`docs/demo.sh`/指标同步检查器 + fresh-clone 28s 复验）；**GitHub 发布待用户账号** |
 
-⛔ **本 README 不承诺未经实测的能力**：`docker compose` 一键运行在 D6 之前不存在，届时若未在真实 Docker 环境验证过，也会在此明确标注"未验证"。
+⛔ **本 README 不承诺未经实测的能力**：所有数字都由 `tools/d7_metrics_sync.py` 与 `eval/` 报告双向比对（不一致即 `exit 1`）；`docker compose up` 已在真容器里验过（`tools/d6_compose_smoke.py` 5/5）。**唯一未完成的动作是把仓库推到 GitHub**（需要用户账号与授权），因此状态词仍是**开发中**，⛔ 写「已开源 / 附 Demo」。
 
 ## D1 的设计决定（不是随便选的）
 
