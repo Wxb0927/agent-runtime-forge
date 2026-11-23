@@ -20,7 +20,7 @@
 | D3 | 工具契约层等价实现 + MCP Server | ✅ 契约层完成（2026-11-22）；MCP 封装按任务书属 D5，⛔ 提前做 |
 | D4 | 评估流水线（规则评分 / LLM-as-Judge / 回归差集 / 覆盖率矩阵 / PR 前检查） | ✅ 完成（2026-11-22），80 格矩阵 + 86 条语料 + 28/28 变异 |
 | D5 | RAG 检索线（本地 BGE 混合检索 + Reranker + 300 条业务 QA 评估集） | ✅ 完成（2026-11-23）：327 条 QA、**语义档 BGE + faiss + jieba 实跑**、MCP 真协议往返 9/9，两份报告并存（hash / semantic） |
-| D6 | FastAPI + SSE 服务化与可观测 | 🟡 应用侧完成并 curl 验过（P95 78.2ms）；**容器端到端⛔ 验证**（本机 Docker 守护进程未运行） |
+| D6 | FastAPI + SSE 服务化与可观测 | ✅ 完成（2026-11-23）：容器端到端已验证，compose 热态 **P95 77.9 ms**（`eval/latency.md`） |
 | D7 | 架构图、指标表、讲解稿 | ⏳ 未开始 |
 
 ⛔ **本 README 不承诺未经实测的能力**：`docker compose` 一键运行在 D6 之前不存在，届时若未在真实 Docker 环境验证过，也会在此明确标注"未验证"。
@@ -506,10 +506,17 @@ D2 的确定性计算层 + D3 的字典校验。三条理由：
 
 # D6 · 服务化 + 可观测（应用侧完成，容器端到端未验证）
 
-⚠️ **先把没做到的说在前面**：本机 Docker 守护进程未运行（`docker info` 为空），
-所以任务书那条「`docker compose up` 后一条 curl 拿到 SSE」**尚未端到端验证**。
-compose/Dockerfile 都写了、`tools/d6_compose_smoke.py` 会在没有 Docker 时
-**exit 3 并说明原因**（与 D5 的 MCP 冒烟同一套纪律：⛔ 假装跑过）。
+✅ **容器端到端已验证（2026-11-23）**：`docker compose up -d` 起 app + postgres + qdrant 三服务，
+`tools/d6_compose_smoke.py` **5/5 全过**（REST 返回合法信封、`-N curl` 拿到 SSE 事件流、
+Postgres 里确实落了 trace、下游故障仍是 **200 + 合法信封**、`/healthz` 自报后端）。
+脚本在**没有 Docker 时会 exit 3 并说明原因**（与 D5 的 MCP 冒烟同一套纪律：⛔ 假装跑过）。
+
+⚠️ 容器化过程暴露的两个真问题——**都⛔ 是"本机 pytest 全绿"能发现的**：
+① Dockerfile 里 `ENV` 多行漏了续行反斜杠 ⇒ `PATH` 那行**静默失效**，容器报
+`No module named uvicorn`（`uv sync` 把依赖装进 `/app/.venv`，⛔ 系统 python 看不见）；
+② 一开始没把 `psycopg` 列进依赖 ⇒ compose 设了 `DATABASE_URL` 后应用 **import 期就崩**
+（`STORE = make_trace_store()` 连不上 Postgres）。⇒ 教训：**凡涉及部署的验收，
+必须在目标形态里跑一遍**，本机绿⛔ 等于容器绿。
 
 ## 落点
 
@@ -544,7 +551,7 @@ compose/Dockerfile 都写了、`tools/d6_compose_smoke.py` 会在没有 Docker �
 | trace 内容 | `steps=5`（只问进度）/ `steps=7`（三分支全跑），`tool_sequence=router→guard→stats→fanin→aggregate`，`degraded=false` |
 | 降级演练（curl，`faults=cost:perm`） | HTTP 200 + `code=DEGRADED` + `【降级】cost：下游取数失败（尝试 3 次后降级），本次未计入`，其余分支数据保留 |
 | 能失败 | 变异组 **40 条**（D6 新增 M23–M28：降级不点名 / 全挂报成功 / **图跑两遍** / 步数漏记 / 空样本编 P95 / 打桩冒充 token） |
-| 全仓测试 | `pytest` 全绿（D6 新增 `tests/test_server_api.py` 15 条 + `test_build_hygiene.py` 2 条） |
+| 全仓测试 | `pytest` **191 passed**；D6 新增 `tests/test_server_api.py` 15 条 + `test_build_hygiene.py` 2 条 |
 
 ⚠️ **两个"步数"是不同口径，⛔ 说串**：`trace.steps` 是**图节点数**（router/guard/分支/fanin/aggregate）；
 简历里"首问 17 步 → 4 步"是**工具调用步数**。面试时如果指着 trace 说"看我 7 步"，

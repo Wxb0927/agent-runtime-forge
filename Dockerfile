@@ -12,10 +12,21 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
+# ⚠️ uv sync 把依赖装进 /app/.venv，系统 python（/usr/local/bin）看不见它。
+#    实测第一次起容器就报「No module named uvicorn」——本机 curl 验过了⛔ 等于容器能跑。
+#    多行 ENV 必须带续行反斜杠：漏了它第二行会被当未知指令而**悄悄失效**（我就漏了一次）。
+ENV VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:${PATH}"
+
 # 只用 uv 装依赖（不装项目本身：仓库是扁平布局 + PYTHONPATH，与 README 一致）
 COPY pyproject.toml uv.lock uv.toml ./
+# ⚠️ 服务镜像只装 server extra：REST/SSE/trace/降级全程没 import 过 torch，
+#    把 semantic（torch + sentence-transformers 约 2 GB）烤进服务镜像纯属浪费，
+#    还让每次构建慢十几分钟。RAG 评测是离线批处理，在本机跑：
+#      uv sync --extra semantic --extra zh
+#      uv run python -m eval.rag_eval --semantic --rerank
 RUN pip install --no-cache-dir uv==0.11.17 \
- && uv sync --frozen --no-dev --extra semantic --extra server
+ && uv sync --frozen --no-dev --extra server
 
 COPY forge/ ./forge/
 COPY eval/ ./eval/

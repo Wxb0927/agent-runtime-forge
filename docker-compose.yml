@@ -34,7 +34,7 @@ services:
       POSTGRES_USER: forge
       # ⚠️ 明文口令⛔ 进公开仓库。默认值只标"本地开发用"，真跑请写进 .env（已 gitignore）
       #    或用环境变量覆盖：FORGE_PG_PASSWORD=xxx docker compose up
-      POSTGRES_PASSWORD: ${FORGE_…l}`}
+      POSTGRES_PASSWORD: ${FORGE_PG_PASSWORD:-forge-dev-only}
       POSTGRES_DB: forge
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U forge -d forge"]
