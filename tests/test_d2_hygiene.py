@@ -113,3 +113,13 @@ def test_temp_dir_is_not_on_the_system_drive() -> None:
         val = applied[key].lower().replace(chr(92), '/')
         assert not val.startswith(home.lower().replace(chr(92), '/')), (key, val)
         assert not val.startswith('c:/users'), (key, val)
+
+def test_basetemp_parent_is_tracked_so_fresh_clone_works() -> None:
+    """全新 clone 必须能直接 `uv run pytest`。
+
+    2026-11-23 的 fresh-clone 验证抓到：`.tmp/` 整个被 gitignore ⇒ clone 后父目录不存在，
+    而 pytest 的 `--basetemp=.tmp/pytest` 只 mkdir 一层 ⇒ **35 个 error**。
+    本机一直有这个目录所以我从没看见。⇒ 占位文件 `.tmp/.keep` 必须被跟踪。
+    """
+    assert (ROOT / ".tmp" / ".keep").exists(), (
+        "缺 .tmp/.keep：fresh clone 里 pytest 会因 basetemp 父目录不存在而报错")

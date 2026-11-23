@@ -11,6 +11,104 @@
 1. 现成框架替你承担了哪一层（状态通道、checkpoint、HITL 中断、并行 fan-in）；
 2. 它又替你把哪一层变成了黑盒（可观测粒度、评测口径、权限判定位置）。
 
+## 架构
+
+```mermaid
+flowchart LR
+  Q[自然语言问句] --> R[router<br/>规则路由 → 技能子集]
+  R --> G[guard<br/>四档可见范围 fail-closed<br/>算不出收窄值即降级]
+  G -->|越权点名| AGG
+  G --> B1[stats<br/>task_table]
+  G --> B2[deviation<br/>milestone_table]
+  G --> B3[cost<br/>cost_docs]
+  B1 --> FI[fanin<br/>单写者合并交接]
+  B2 --> FI
+  B3 --> FI
+  FI --> AGG[aggregate<br/>六字段信封 + 成品正文]
+  AGG --> API[server/app.py<br/>REST + SSE + trace]
+  API --> PG[(Postgres<br/>trace)]
+  subgraph 同一套底层
+    COMPUTE[forge/graph/compute.py<br/>度量注册表 · LLM⛔ 算数]
+    CARDS[forge/contract/*<br/>describe 由代码派生 · intent 校验]
+  end
+  B1 --- COMPUTE
+  B2 --- COMPUTE
+  B3 --- COMPUTE
+  CARDS -.同一校验器.-> API
+  MCP[forge/mcp/server.py<br/>MCP 2.x · stdio] -.只做协议翻译.-> CARDS
+  RAG[forge/rag/*<br/>BM25 + dense + RRF + rerank] --> EVAL[eval/*<br/>矩阵/差集/judge/归类]
+```
+
+**三条编排线跑同一个业务问题**（这是本仓库的核心实验，不是冗余）：
+
+| 线 | 循环在谁手里 | 模型轮次 | 落点 |
+|---|---|---|---|
+| Line A 官方 `create_agent` + 中间件 | 框架 | 2 | `forge/graph/react_agent.py` |
+| Line A2 手写最小 ReAct 环 | 框架（回头边是我画的） | 2 | `forge/graph/react_min.py` |
+| Line B 公司范式（无环 + 批次并行） | 宿主 | **0** | `forge/graph/plan_graph.py` |
+
+⇒ 三条线 **10 条指标逐字一致**（`tests/test_graph_parity.py`），差别只在**轮次与上下文成本**。
+
+## 四层职责表（含"⛔ 归谁"，这半列才是重点）
+
+| 层 | 我做什么 | ⛔ 不归我（⛔ 别揽） |
+|---|---|---|
+| 工具契约 | `describe()` 代码派生、`intent` 字典校验、非法枚举回带合法值、越界钳位 | 平台侧的技能加载与沙箱 |
+| 依赖调度 | 静态依赖图 → 拓扑计划、批次并行、失败隔离不当 0 计入 | **循环本身**（宿主驱动那段归宿主会话） |
+| 取数口径 | 确定性公式、度量注册表、无数据≠0、`as_of` 显式注入 | 模型侧的措辞与句式 |
+| 评测与发布门禁 | 矩阵枚举、回归差集、judge 分段、失败归类、能失败变异 | 业务方对口径的最终裁定（我给证据⛔ 替他们决定） |
+
+## 指标总表（⛔ 手写：每个数都由 `tools/d7_metrics_sync.py` 与 `eval/` 报告比对后写入）
+
+| 指标 | 值 | 出处 |
+|---|---|---|
+| 测试 | **191 passed** | `uv run pytest` |
+| 能失败变异 | **40/40**（D1 5+D2 6+D3 5+D4 6+D5 6+D6 6） | `uv run python tools/mutation_check.py` |
+| 并行竞态压测 | 同 thread 20 次 + 20 thread 并发 ⇒ **0 次字段覆盖** | `tests/test_graph_channels_race.py` |
+| 覆盖率矩阵 | **80 格**（10 域 × 8 问法）· 命中率 1.0（⚠️ 结构性偏高，见 caveat） | `eval/report.md` |
+| RAG 质量（语义档） | top1 引用正确率 **0.5443 → 0.6055**（bm25→dense）；Recall@5 0.7156→0.7554 | `eval/rag_report_semantic.md` |
+| Reranker | Recall@5 **0.7798（最高）** 但 top1 **0.5352（更低）** ⇒ 双向结果 | 同上 |
+| 随机基线 | top1 0.0345（1/29）· Recall@5 0.1724（5/29） | 同上（头条取 top1） |
+| QA 评估集 | **327 条**（定义 112 / 流程 63 / 异常处理 152） | `eval/qa_set.jsonl` |
+| 服务延迟 | compose+Postgres **P50 60.9 / P95 77.9 / P99 104.4 ms**；本机 P95 73.7 ms | `eval/latency.md` |
+| 冷启动 | 首批 P95 ≈ **638.5 ms**（单独留档，⛔ 混进热态） | 同上 |
+| MCP 真协议往返 | **9/9**（含枚举随 schema 下发、非法值拒答带合法值） | `uv run python tools/d5_mcp_smoke.py` |
+| 容器验收 | **5/5**（REST/SSE/Postgres trace/降级/后端自报） | `uv run python tools/d6_compose_smoke.py` |
+
+## 三个取舍（为什么这样做，⛔ 为什么那样做）
+
+**① 为什么用图式并行而⛔ 一路串行？**
+批次并行把首问时延压下来，但真代价在**共享可变状态**：三条分支共写同一份交接文件时，
+实测后写者会**把整份文档换掉**且⛔ 任何异常（这就是当年"数据对、来源标签漂"的成因）。
+⇒ 解法⛔ 是加锁：各分支写独立 state 通道、只有 fan-in 单点写、合并语义用 reducer 显式声明。
+LangGraph 对"返回同一个 channel key"会抛 `InvalidUpdateError`，但对"共写外部文件/原地改共享对象"
+⛔ 管——**框架能抓住的只是通道冲突，⛔ 是共享可变状态**。
+
+**② 为什么 LLM⛔ 算数？**
+生产真机上模型把 53% 写成 71%、关键路径自报 3 个（真值 7）。⇒ 所有业务算术进代码，
+派生量带 `numerator/denominator/as_of`，答案里的每个数字都能反查；模型只逐字转述成品正文。
+副作用是新增指标必须注册（加一行注册 + 一条考卷），但这正是"能失败"的落点：
+D4 的规则评分里有 `fabricated-number` 专抓凭空数字。
+
+**③ 为什么自研契约层而⛔ 直接用现成工具注册？**
+不是"框架能力不行"：在能起常驻进程的环境里 LangGraph 完全够用。是**环境**——
+平台只给 zip + 命令行、技能是一次性 CLI、脚本禁异步 ⇒ ⛔ 常驻进程可挂框架。
+而且 MCP 只声明 schema，**⛔ 定义非法参数怎么办**：本项目实测两面确有差异——
+MCP 面把未知参数**静默忽略**，自研 `--intent` 面会 `DROPPED:` 点名并继续执行。
+（⛔ 说"我们实现了 MCP 协议"；说"解决同一类问题，但当时只有命令行"。）
+
+## 边界：我⛔ 做什么（主动交底，⛔ 等对方挖）
+
+1. 受限平台那条线**没有**任意循环（ReAct）、**没有**跨调用 checkpoint 恢复（只有会话级缓存）、
+   **没有**流式 —— 这是**分工**（循环归宿主），⛔ 能力缺陷；这三样我在个人项目里真做过。
+2. Reranker 实测**没提升 top1**（0.5352 < dense 0.6055），当前默认关；
+   评测语料与 QA 集是**自建合成**，⛔ 生产问答质量。
+3. 延迟数字是**单机、无鉴权、无网络跳数**（本机或单机 compose），⛔ 集群容量结论。
+4. 结构化问数（要确定性数字）**⛔ 走向量召回**；RAG 只服务规则库/模板库问答——
+   理由见「为什么结构化问数⛔ 走向量召回」。
+5. 状态词：仓库尚未推公网 ⇒ 本项目当前是**开发中**，
+   「已开源 / 附 Demo」要等 D7 发布真正做完。
+
 ## 当前状态（按天推进，每天有验收判据）
 
 | 阶段 | 内容 | 状态 |
@@ -281,7 +379,7 @@ uv run python tools/intake_host.py --scratch .tmp/demo --thread t1 --continue
 | judge 模式 | 默认 `mode=rule`、`llm=skipped`，未评项显式列出；`--live-judge` 才走真模型 |
 | 评测器自证 | `tests/test_eval_pipeline.py` **23 条**（喂构造坏样本：假信封 / 假 judge / 假基线；⛔ 改磁盘源码） |
 | 能失败 | 全量复跑 **28/28 通过**（D1 5 + D2 6 + D3 5 + D4 6），每条改歪 rc=1 / 改回 rc=0，跑完工作区无残留 |
-| 全仓回归 | `pytest` **153 passed**（此前 130 条零回归） |
+| 全仓回归 | `pytest` **153 passed**（D4 当时的读数；现 191，见顶部指标总表） |
 
 ## D4 的两处取舍（⛔ 藏着）
 
@@ -311,7 +409,7 @@ CI 想用官方站就显式覆盖）。换完之后 `--extra semantic` / `--extr
 📌 **两条自己戳穿自己的结论（顺序很重要，这是我今天第二次改口）**
 
 1. **上一轮这批数是无效的**：我一度把检索单位设成"29 条口径合并成的 6 章"，
-   于是候选只有 6 个 ⇒ **瞎猜 Recall@5 都有 0.8333**，实测出来的 0.98~0.997 离饱和只差一步，
+   于是候选只有 6 个 ⇒ **瞎猜 Recall@5 都有 0.8333**（该档数字已作废，仅用于说明错在哪），实测出来的 0.98~0.997 离饱和只差一步，
    并且**在这个尺度上我得出过"hybrid 最优"的结论**。把单位改回 29 条口径后，
    同一份代码给出的答案变了：**dense 在排序头部最强（top1 0.6055），
    hybrid 反而把它拉低到 0.5841** ⇒ 那句"hybrid 最优"是**指标饱和造出来的假象**。
@@ -546,7 +644,7 @@ Postgres 里确实落了 trace、下游故障仍是 **200 + 合法信封**、`/h
 
 | 判据 | 结果 |
 |---|---|
-| 延迟（`tools/d6_latency.py`，N=120、并发 4、单实例 uvicorn、sqlite、非容器） | **P50 54.6 ms · P95 78.2 ms · P99 472.7 ms**，失败 0 |
+| 延迟（`tools/d6_latency.py`，N=120、并发 4、预热 15 次单独留档；形态与后端取自 `/healthz` 实测） | 本机+sqlite **P50 52.0 / P95 73.7 / P99 88.2 ms**；compose+Postgres **P50 60.9 / P95 77.9 / P99 104.4 ms**；真冷启动首批 P95 ≈ 638.5 ms （旧版这里写过 54.6/78.2/472.7，是**预热未分离 + 形态标签写死**时的读数，已作废） |
 | P99 长尾 | 472.7 ms 照实留着——来自首批冷启动请求（数据集构建与 JIT），⛔ 抹平后再报 |
 | trace 内容 | `steps=5`（只问进度）/ `steps=7`（三分支全跑），`tool_sequence=router→guard→stats→fanin→aggregate`，`degraded=false` |
 | 降级演练（curl，`faults=cost:perm`） | HTTP 200 + `code=DEGRADED` + `【降级】cost：下游取数失败（尝试 3 次后降级），本次未计入`，其余分支数据保留 |
