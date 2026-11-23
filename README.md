@@ -62,7 +62,7 @@ flowchart LR
 
 | 指标 | 值 | 出处 |
 |---|---|---|
-| 测试 | **191 passed** | `uv run pytest` |
+| 测试 | **192 passed** | `uv run pytest` |
 | 能失败变异 | **40/40**（D1 5+D2 6+D3 5+D4 6+D5 6+D6 6） | `uv run python tools/mutation_check.py` |
 | 并行竞态压测 | 同 thread 20 次 + 20 thread 并发 ⇒ **0 次字段覆盖** | `tests/test_graph_channels_race.py` |
 | 覆盖率矩阵 | **80 格**（10 域 × 8 问法）· 命中率 1.0（⚠️ 结构性偏高，见 caveat） | `eval/report.md` |
@@ -379,7 +379,7 @@ uv run python tools/intake_host.py --scratch .tmp/demo --thread t1 --continue
 | judge 模式 | 默认 `mode=rule`、`llm=skipped`，未评项显式列出；`--live-judge` 才走真模型 |
 | 评测器自证 | `tests/test_eval_pipeline.py` **23 条**（喂构造坏样本：假信封 / 假 judge / 假基线；⛔ 改磁盘源码） |
 | 能失败 | 全量复跑 **28/28 通过**（D1 5 + D2 6 + D3 5 + D4 6），每条改歪 rc=1 / 改回 rc=0，跑完工作区无残留 |
-| 全仓回归 | `pytest` **153 passed**（D4 当时的读数；现 191，见顶部指标总表） |
+| 全仓回归 | `pytest` **153 passed**（D4 当时的读数；现 192，见顶部指标总表） |
 
 ## D4 的两处取舍（⛔ 藏着）
 
@@ -649,7 +649,7 @@ Postgres 里确实落了 trace、下游故障仍是 **200 + 合法信封**、`/h
 | trace 内容 | `steps=5`（只问进度）/ `steps=7`（三分支全跑），`tool_sequence=router→guard→stats→fanin→aggregate`，`degraded=false` |
 | 降级演练（curl，`faults=cost:perm`） | HTTP 200 + `code=DEGRADED` + `【降级】cost：下游取数失败（尝试 3 次后降级），本次未计入`，其余分支数据保留 |
 | 能失败 | 变异组 **40 条**（D6 新增 M23–M28：降级不点名 / 全挂报成功 / **图跑两遍** / 步数漏记 / 空样本编 P95 / 打桩冒充 token） |
-| 全仓测试 | `pytest` **191 passed**；D6 新增 `tests/test_server_api.py` 15 条 + `test_build_hygiene.py` 2 条 |
+| 全仓测试 | `pytest` **192 passed**；D6 新增 `tests/test_server_api.py` 15 条 + `test_build_hygiene.py` 2 条 |
 
 ⚠️ **两个"步数"是不同口径，⛔ 说串**：`trace.steps` 是**图节点数**（router/guard/分支/fanin/aggregate）；
 简历里"首问 17 步 → 4 步"是**工具调用步数**。面试时如果指着 trace 说"看我 7 步"，
