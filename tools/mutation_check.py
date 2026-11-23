@@ -199,7 +199,47 @@ MUTATIONS_D5: list[tuple[str, str, str, str, str]] = [
      'test_gold_chapter_is_retrievable_in_principle'),
 ]
 
-ALL_MUTATIONS = MUTATIONS + MUTATIONS_D2 + MUTATIONS_D3 + MUTATIONS_D4 + MUTATIONS_D5 + MUTATIONS_D4
+
+# --------------------------------------------------------------------------
+# D6 组：服务化（降级点名 / 全挂不许报成功 / 图只跑一遍 / trace 步数 /
+#        空样本不许编 P95 / 打桩不许冒充 token）
+# 每一条都对着今天真实犯过的错或一条诚实纪律，⛔ 拿来凑数。
+# --------------------------------------------------------------------------
+
+MUTATIONS_D6: list[tuple[str, str, str, str, str]] = [
+    ('M23 降级不再在答案里点名缺口',
+     'server/pipeline.py',
+     'DEGRADE_SECTION = "【降级】"',
+     'DEGRADE_SECTION = ""',
+     'test_degradation_names_the_gap_and_keeps_the_rest'),
+    ('M24 全部下游都挂却说成功（ok 恒真）',
+     'server/pipeline.py',
+     '    env["ok"] = still_have',
+     '    env["ok"] = True',
+     'test_all_downstreams_down_says_not_ok'),
+    ('M25 stream 之后又 invoke（图跑两遍、尝试与延迟翻倍）',
+     'server/pipeline.py',
+     '    out = dict(app.get_state(cfg).values or {})',
+     '    out = app.invoke(state, cfg)',
+     'test_graph_runs_once'),
+    ('M26 trace 里步数不记（只剩节点序列）',
+     'server/pipeline.py',
+     '"steps": len(tool_sequence),',
+     '"steps": 0,',
+     'test_trace_records_node_sequence_and_steps'),
+    ('M27 空样本硬编一个 P95=0（0 会被读成"极快"）',
+     'server/trace.py',
+     '        if not rows:',
+     '        if False:',
+     'test_percentile_refuses_to_invent_numbers'),
+    ('M28 打桩流冒充真 token 流（stream_kind 说谎）',
+     'server/pipeline.py',
+     '        stream_kind = "message_chunk(stub)"',
+     '        stream_kind = "token"',
+     'test_stub_stream_admits_it_is_not_tokens'),
+]
+
+ALL_MUTATIONS = MUTATIONS + MUTATIONS_D2 + MUTATIONS_D3 + MUTATIONS_D4 + MUTATIONS_D5 + MUTATIONS_D6 + MUTATIONS_D4
 
 
 def run_pytest(k: str) -> int:
@@ -218,9 +258,11 @@ def main(argv: list[str] | None = None) -> int:
         print("没有变异匹配这些关键字：", " ".join(wanted))
         return 1
     for i, (name, rel, old, new, test_id) in selected:
-        n1, n2, n3, n4 = (len(MUTATIONS), len(MUTATIONS_D2), len(MUTATIONS_D3), len(MUTATIONS_D4))
+        n1, n2, n3, n4, n5 = (len(MUTATIONS), len(MUTATIONS_D2), len(MUTATIONS_D3),
+                              len(MUTATIONS_D4), len(MUTATIONS_D5))
         group = ("D1" if i < n1 else "D2" if i < n1 + n2 else "D3" if i < n1 + n2 + n3
-                 else "D4" if i < n1 + n2 + n3 + n4 else "D5")
+                 else "D4" if i < n1 + n2 + n3 + n4 else "D5" if i < n1 + n2 + n3 + n4 + n5
+                 else "D6")
         path = ROOT / rel
         # ⚠️ 必须**按字节**备份再还原：文本模式写文件在 Windows 上会把换行
         #    翻译成 CRLF，"还原原样"于是悄悄改了全文件行尾
@@ -243,10 +285,10 @@ def main(argv: list[str] | None = None) -> int:
         if not ok:
             failures.append(name)
     print()
-    print("能失败检查: %d/%d 通过（本仓库共 %d 条：D1 %d + D2 %d + D3 %d + D4 %d + D5 %d）"
+    print("能失败检查: %d/%d 通过（本仓库共 %d 条：D1 %d + D2 %d + D3 %d + D4 %d + D5 %d + D6 %d）"
           % (len(selected) - len(failures), len(selected), len(ALL_MUTATIONS),
              len(MUTATIONS), len(MUTATIONS_D2), len(MUTATIONS_D3), len(MUTATIONS_D4),
-             len(MUTATIONS_D5)))
+             len(MUTATIONS_D5), len(MUTATIONS_D6)))
     if wanted:
         print("   （已按关键字过滤：%s）" % " ".join(wanted))
     return 1 if failures else 0

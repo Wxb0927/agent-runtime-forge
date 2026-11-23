@@ -1,0 +1,15 @@
+# ⛔ 密钥进镜像：.env 只存在于宿主机
+.env
+.env.local
+*.key
+
+# 生成物与本地缓存（镜像里由 uv.lock 决定依赖，⛔ 把本机 venv 拷进去）
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.tmp/
+data/
+*.sqlite3
+*.db
+.git/

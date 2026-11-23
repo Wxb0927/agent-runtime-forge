@@ -1,0 +1,59 @@
+# D6 一键运行。⚠️ 三个服务**都是应用真会连的**，⛔ 摆两个用不上的门面：
+#   postgres  ← DATABASE_URL（trace 持久化，见 server/persistence.py）
+#   qdrant    ← FORGE_VECTOR_URL（dense 索引后端）
+# 未设这两个变量时应用回落 sqlite / faiss，所以本机测试与 CI 不需要容器。
+#
+# 本机 2026-11-23 实测：Docker 守护进程未运行 ⇒ **这份 compose 尚未端到端验证**。
+# 验证命令：docker compose up --build，然后 uv run python tools/d6_compose_smoke.py
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://forge:${FORGE_PG_PASSWORD:-forge-dev-only}@postgres:5432/forge
+      FORGE_VECTOR_URL: http://qdrant:6333
+      FORGE_MODEL: deepseek-v4.1-flash
+      # ⛔ 任何真实密钥都不进 compose；要跑真模型请在本机 .env 里设（已被 gitignore）
+      FORGE_API_KEY: ""
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request,sys;sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/healthz',timeout=3).status==200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: forge
+      # ⚠️ 明文口令⛔ 进公开仓库。默认值只标"本地开发用"，真跑请写进 .env（已 gitignore）
+      #    或用环境变量覆盖：FORGE_PG_PASSWORD=xxx docker compose up
+      POSTGRES_PASSWORD: ${FORGE_…l}`}
+      POSTGRES_DB: forge
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U forge -d forge"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    healthcheck:
+      test: ["CMD", "bash", "-c", "</dev/tcp/127.0.0.1/6333"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    volumes:
+      - qdata:/qdrant/storage
+
+volumes:
+  pgdata:
+  qdata:

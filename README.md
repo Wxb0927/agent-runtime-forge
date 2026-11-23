@@ -20,7 +20,7 @@
 | D3 | 工具契约层等价实现 + MCP Server | ✅ 契约层完成（2026-11-22）；MCP 封装按任务书属 D5，⛔ 提前做 |
 | D4 | 评估流水线（规则评分 / LLM-as-Judge / 回归差集 / 覆盖率矩阵 / PR 前检查） | ✅ 完成（2026-11-22），80 格矩阵 + 86 条语料 + 28/28 变异 |
 | D5 | RAG 检索线（本地 BGE 混合检索 + Reranker + 300 条业务 QA 评估集） | ✅ 完成（2026-11-23）：327 条 QA、**语义档 BGE + faiss + jieba 实跑**、MCP 真协议往返 9/9，两份报告并存（hash / semantic） |
-| D6 | FastAPI + SSE 服务化与可观测 | ⏳ 未开始 |
+| D6 | FastAPI + SSE 服务化与可观测 | 🟡 应用侧完成并 curl 验过（P95 78.2ms）；**容器端到端⛔ 验证**（本机 Docker 守护进程未运行） |
 | D7 | 架构图、指标表、讲解稿 | ⏳ 未开始 |
 
 ⛔ **本 README 不承诺未经实测的能力**：`docker compose` 一键运行在 D6 之前不存在，届时若未在真实 Docker 环境验证过，也会在此明确标注"未验证"。
@@ -497,3 +497,72 @@ D2 的确定性计算层 + D3 的字典校验。三条理由：
 9. **只钉 HF/torch/uv 会漏掉 tempfile**：实测 jieba 把词典缓存写到
    `C:\Users\…\Temp\jieba.cache` ⇒ `forge/env.py` 现在连 `TMPDIR/TEMP/TMP` 一起设，
    并有 `test_temp_dir_is_not_on_the_system_drive` 盯着。
+
+⚠️ **两条被实测推翻的说法（已改成断言，⛔ 靠我口头声称）**：
+① 我写过"torch 已绑 CPU 索引"，但 `[tool.uv.sources]` **对传递依赖不生效**（torch 是 sentence-transformers 带进来的）⇒ 结果虽然仍是对的（实测 `torch 2.15.0+cpu`，`version.cuda=None`），保证它的却不是那条配置。现在由 `tests/test_build_hygiene.py` 断言构建形态；
+② `uv.toml` 存在时 pyproject 里的 `[[tool.uv.index]]` 会被**静默忽略**（uv 会出一行 warning，很多人当噪音），两处配同一件事必然分叉 ⇒ 重复定义已删，并由同一测试钉住。
+
+---
+
+# D6 · 服务化 + 可观测（应用侧完成，容器端到端未验证）
+
+⚠️ **先把没做到的说在前面**：本机 Docker 守护进程未运行（`docker info` 为空），
+所以任务书那条「`docker compose up` 后一条 curl 拿到 SSE」**尚未端到端验证**。
+compose/Dockerfile 都写了、`tools/d6_compose_smoke.py` 会在没有 Docker 时
+**exit 3 并说明原因**（与 D5 的 MCP 冒烟同一套纪律：⛔ 假装跑过）。
+
+## 落点
+
+| 任务书要求 | 落点 | 状态 |
+|---|---|---|
+| FastAPI REST | `POST /v1/ask` → §3.4 六字段信封 + `X-Request-Id` | ✅ curl 验过 |
+| SSE 事件流 | `GET /v1/ask/stream`：`node` / `answer_line` / `done` | ✅ curl 验过 |
+| SSE token 流 | `GET /v1/chat/stream`：`surface` / `tool_call` / `tool_result` / `token` / `done` | ✅ 打桩跑通；`done.stream_kind` **自报是 `message_chunk(stub)` 还是 `token`**（真 token 需 `live=true`） |
+| trace（步数/工具序列/token/时延） | `server/trace.py` + `/v1/trace/{id}`、`/v1/traces`、`/v1/trace/stats` | ✅ |
+| 下游故障 ⇒ 如实降级 | `server/pipeline.py`：`branch_hook` 注入 + 有限重试 + 降级点名 | ✅ curl 验过 |
+| docker-compose（app+postgres+向量库） | `docker-compose.yml` + `Dockerfile`；`server/persistence.py` 提供 **真会连** 的 Postgres/Qdrant 适配器 | 🟡 配置就绪，容器未跑 |
+| `.env.example` ⛔ 真实密钥 | 已补 D6 段（`DATABASE_URL`/`FORGE_VECTOR_URL`/`FORGE_CACHE_ROOT` 形状示例），口令走 `${FORGE_PG_PASSWORD}` 注入；`RUN ! test -f .env` 在镜像里再断一次 | ✅ |
+
+## HTTP 语义怎么定的（⛔ 和稀泥）
+
+| 情形 | 状态码 | 响应体 |
+|---|---|---|
+| 正常 | 200 | 合法信封 |
+| 部分下游挂 | **200** + `code=PARTIAL`、`ok=true` | `notes: DEGRADED:<skill>` + 答案追加 `【降级】…本次未计入` |
+| 全部下游挂 | **200** + `code=DEGRADED`、**`ok=false`** | 同上；⛔ 说成成功 |
+| 未预期内部异常 | **503** | **仍是合法信封**（`code=INTERNAL_DEGRADED`），⛔ FastAPI 默认裸栈 traceback |
+
+理由：任务书那句"⛔ 不许 500 裸栈"，我的解释是**状态码要诚实、响应体必须可解析**——
+上游按字段取值，一个裸栈会让整条链路失败且看不出原因。四种情形各有测试。
+
+## D6 实测读数（2026-11-23，本机）
+
+| 判据 | 结果 |
+|---|---|
+| 延迟（`tools/d6_latency.py`，N=120、并发 4、单实例 uvicorn、sqlite、非容器） | **P50 54.6 ms · P95 78.2 ms · P99 472.7 ms**，失败 0 |
+| P99 长尾 | 472.7 ms 照实留着——来自首批冷启动请求（数据集构建与 JIT），⛔ 抹平后再报 |
+| trace 内容 | `steps=5`（只问进度）/ `steps=7`（三分支全跑），`tool_sequence=router→guard→stats→fanin→aggregate`，`degraded=false` |
+| 降级演练（curl，`faults=cost:perm`） | HTTP 200 + `code=DEGRADED` + `【降级】cost：下游取数失败（尝试 3 次后降级），本次未计入`，其余分支数据保留 |
+| 能失败 | 变异组 **40 条**（D6 新增 M23–M28：降级不点名 / 全挂报成功 / **图跑两遍** / 步数漏记 / 空样本编 P95 / 打桩冒充 token） |
+| 全仓测试 | `pytest` 全绿（D6 新增 `tests/test_server_api.py` 15 条 + `test_build_hygiene.py` 2 条） |
+
+⚠️ **两个"步数"是不同口径，⛔ 说串**：`trace.steps` 是**图节点数**（router/guard/分支/fanin/aggregate）；
+简历里"首问 17 步 → 4 步"是**工具调用步数**。面试时如果指着 trace 说"看我 7 步"，
+而简历写 4 步，就成了自相矛盾——`tests/test_server_api.py` 里那条注释就是为钉住这件事写的。
+
+## D6 我自己犯的、已钉成测试的错
+
+1. **图跑了第二遍**：`stream()` 之后又 `invoke()` 取终态 ⇒ 故障尝试次数翻倍、延迟虚高一倍，
+   P95 直接成假数。改成从 checkpoint 读终态，并用 `test_graph_runs_once` 断言
+   `attempts==3`（1 首发 + 2 重试）与 `steps==len(events)`。
+2. **SSE 返回形状猜错**：`create_agent` 在 langgraph 1.x 下流出来的是**按节点/中间件的更新字典**
+   （`model` / `tools` / `ModelCallLimitMiddleware.before_model`），⛔ 我以为是顶层
+   `{"messages": […]}` ⇒ 事件流一条都没发。改成按实测形状取，且用 `_probe` 先打形状再写代码。
+3. **sqlite INSERT 占位符少一个**（17 列 vs 16 个 `?`）——冒烟第一步就炸出来。
+4. **路由顺序**：`/v1/trace/{request_id}` 注册在 `/v1/trace/stats` 之前，把 stats 当成了 id ⇒ 404。
+5. **`raise_server_exceptions` 当成每次请求的参数**（其实是 TestClient 构造参数）。
+6. **compose 里写死明文口令** `POSTGRES_PASSWORD: ***`（占位符残留）——公开仓库里这是硬伤，
+   改成 `${FORGE_PG_PASSWORD:-forge-dev-only}` 并让 app 侧与 postgres 侧共用同一个来源，
+   ⛔ 两处各写一遍必然分叉。
+7. **`docker info` 为空却差点把"一键运行"写成已验证** ⇒ 现在 smoke 脚本没 Docker 就 exit 3。
+

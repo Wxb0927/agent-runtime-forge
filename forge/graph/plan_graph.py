@@ -50,7 +50,14 @@ def _delay(branch: str) -> None:
 def build_plan_graph(*, handoff_mode: HandoffMode = "namespaced",
                      scratch_dir: Path | str = "data/handoff",
                      interleave_hook: Hook = None,
-                     shared_branches: tuple[str, ...] = ("stats", "deviation")):
+                     shared_branches: tuple[str, ...] = ("stats", "deviation"),
+                     branch_hook: Optional[Callable[..., dict[str, Any]]] = None):
+    """``branch_hook`` 是 D6 加的**下游取数钩子**（默认 None ⇒ 行为与 D2 完全一致）。
+
+    服务化要能演练「下游出错时如实降级」，而⛔ 为此另写一套编排：
+    两套编排意味着降级路径永远测不到生产路径的真实行为。
+    默认路径零改动，D2 的竞态/压测/门禁测试照旧全绿。
+    """
     def n_router(state: ForgeState) -> dict[str, Any]:
         ds = compute.dataset_for(int(state.get("seed", 42)))
         plan = router_mod.route(state.get("query", ""), ds)
@@ -75,7 +82,8 @@ def build_plan_graph(*, handoff_mode: HandoffMode = "namespaced",
             named = (state.get("route") or {}).get("projects") or []
             visible = named or scope.get("visible_projects") or []
             as_of = state.get("as_of") or compute.parse_as_of(None).isoformat()
-            out = compute.run_branch(branch, int(state.get("seed", 42)), visible, as_of)
+            run = branch_hook or compute.run_branch      # D6：下游可注入故障
+            out = run(branch, int(state.get("seed", 42)), visible, as_of)
             _delay(branch)
             if handoff_mode == "shared" and branch in shared_branches:
                 # ← 事故形状：读-改-写同一份文件的同一组字段
