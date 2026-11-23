@@ -4,178 +4,224 @@
  "by_strategy": {
   "fixed": {
    "embedder": {
-    "chunks": 25,
+    "chunks": 35,
     "embedder": "BAAI/bge-small-zh-v1.5",
     "embedder_is_semantic": true,
     "bm25_impl": "rank_bm25.BM25Okapi",
     "dense_backend": "faiss",
     "tokenizer": "jieba",
-    "reranker": null
+    "reranker": "BAAI/bge-reranker-base"
    },
    "modes": {
     "bm25": {
-     "n": 361,
-     "recall@5": 0.9806,
-     "citation_top1": 0.7784,
-     "relevance_proxy": 0.5899,
+     "n": 327,
+     "recall@5": 0.7064,
+     "citation_top1": 0.5382,
+     "relevance_proxy": 0.6146,
      "by_class": {
       "定义类": {
-       "recall@5": 0.9839,
-       "n": 124
+       "recall@5": 0.625,
+       "n": 112
       },
       "异常处理类": {
-       "recall@5": 0.9702,
-       "n": 168
+       "recall@5": 0.6908,
+       "n": 152
       },
       "流程类": {
-       "recall@5": 1.0,
-       "n": 69
+       "recall@5": 0.8889,
+       "n": 63
       }
      },
-     "worst_class": "异常处理类"
+     "worst_class": "定义类"
     },
     "dense": {
-     "n": 361,
-     "recall@5": 0.9834,
-     "citation_top1": 0.8504,
-     "relevance_proxy": 0.6266,
+     "n": 327,
+     "recall@5": 0.7278,
+     "citation_top1": 0.6024,
+     "relevance_proxy": 0.6713,
      "by_class": {
       "定义类": {
-       "recall@5": 1.0,
-       "n": 124
+       "recall@5": 0.6964,
+       "n": 112
       },
       "异常处理类": {
-       "recall@5": 0.9702,
-       "n": 168
+       "recall@5": 0.7039,
+       "n": 152
       },
       "流程类": {
-       "recall@5": 0.9855,
-       "n": 69
-      }
-     },
-     "worst_class": "异常处理类"
-    },
-    "hybrid": {
-     "n": 361,
-     "recall@5": 0.9861,
-     "citation_top1": 0.9391,
-     "relevance_proxy": 0.6189,
-     "by_class": {
-      "定义类": {
-       "recall@5": 0.9919,
-       "n": 124
-      },
-      "异常处理类": {
-       "recall@5": 0.9762,
-       "n": 168
-      },
-      "流程类": {
-       "recall@5": 1.0,
-       "n": 69
-      }
-     },
-     "worst_class": "异常处理类"
-    },
-    "hybrid+rerank": {
-     "skipped": "重排器未加载（离线默认不下载模型）"
-    }
-   },
-   "hybrid_gain": {
-    "vs_best_single": 0.0027,
-    "note": "负数也照实写：混合不如单路说明这一档融合参数不合适。"
-   }
-  },
-  "section": {
-   "embedder": {
-    "chunks": 15,
-    "embedder": "BAAI/bge-small-zh-v1.5",
-    "embedder_is_semantic": true,
-    "bm25_impl": "rank_bm25.BM25Okapi",
-    "dense_backend": "faiss",
-    "tokenizer": "jieba",
-    "reranker": null
-   },
-   "modes": {
-    "bm25": {
-     "n": 361,
-     "recall@5": 0.9751,
-     "citation_top1": 0.7895,
-     "relevance_proxy": 0.5855,
-     "by_class": {
-      "定义类": {
-       "recall@5": 0.9839,
-       "n": 124
-      },
-      "异常处理类": {
-       "recall@5": 0.9583,
-       "n": 168
-      },
-      "流程类": {
-       "recall@5": 1.0,
-       "n": 69
-      }
-     },
-     "worst_class": "异常处理类"
-    },
-    "dense": {
-     "n": 361,
-     "recall@5": 0.9972,
-     "citation_top1": 0.8338,
-     "relevance_proxy": 0.6191,
-     "by_class": {
-      "定义类": {
-       "recall@5": 0.9919,
-       "n": 124
-      },
-      "异常处理类": {
-       "recall@5": 1.0,
-       "n": 168
-      },
-      "流程类": {
-       "recall@5": 1.0,
-       "n": 69
+       "recall@5": 0.8413,
+       "n": 63
       }
      },
      "worst_class": "定义类"
     },
     "hybrid": {
-     "n": 361,
-     "recall@5": 0.9917,
-     "citation_top1": 0.9114,
-     "relevance_proxy": 0.6096,
+     "n": 327,
+     "recall@5": 0.7431,
+     "citation_top1": 0.5902,
+     "relevance_proxy": 0.6525,
      "by_class": {
       "定义类": {
-       "recall@5": 0.9919,
-       "n": 124
+       "recall@5": 0.6786,
+       "n": 112
       },
       "异常处理类": {
-       "recall@5": 0.9881,
-       "n": 168
+       "recall@5": 0.7434,
+       "n": 152
       },
       "流程类": {
-       "recall@5": 1.0,
-       "n": 69
+       "recall@5": 0.8571,
+       "n": 63
       }
      },
-     "worst_class": "异常处理类"
+     "worst_class": "定义类"
     },
     "hybrid+rerank": {
-     "skipped": "重排器未加载（离线默认不下载模型）"
+     "n": 327,
+     "recall@5": 0.7217,
+     "citation_top1": 0.5413,
+     "relevance_proxy": 0.6508,
+     "by_class": {
+      "定义类": {
+       "recall@5": 0.6696,
+       "n": 112
+      },
+      "异常处理类": {
+       "recall@5": 0.6974,
+       "n": 152
+      },
+      "流程类": {
+       "recall@5": 0.873,
+       "n": 63
+      }
+     },
+     "worst_class": "定义类"
     }
    },
+   "chance": {
+    "n_docs": 29,
+    "recall@5": 0.1724,
+    "recall@1": 0.0345
+   },
    "hybrid_gain": {
-    "vs_best_single": -0.0055,
+    "vs_best_single": 0.0153,
+    "note": "负数也照实写：混合不如单路说明这一档融合参数不合适。"
+   }
+  },
+  "section": {
+   "embedder": {
+    "chunks": 29,
+    "embedder": "BAAI/bge-small-zh-v1.5",
+    "embedder_is_semantic": true,
+    "bm25_impl": "rank_bm25.BM25Okapi",
+    "dense_backend": "faiss",
+    "tokenizer": "jieba",
+    "reranker": "BAAI/bge-reranker-base"
+   },
+   "modes": {
+    "bm25": {
+     "n": 327,
+     "recall@5": 0.7156,
+     "citation_top1": 0.5443,
+     "relevance_proxy": 0.6104,
+     "by_class": {
+      "定义类": {
+       "recall@5": 0.625,
+       "n": 112
+      },
+      "异常处理类": {
+       "recall@5": 0.7105,
+       "n": 152
+      },
+      "流程类": {
+       "recall@5": 0.8889,
+       "n": 63
+      }
+     },
+     "worst_class": "定义类"
+    },
+    "dense": {
+     "n": 327,
+     "recall@5": 0.7523,
+     "citation_top1": 0.6055,
+     "relevance_proxy": 0.6671,
+     "by_class": {
+      "定义类": {
+       "recall@5": 0.7143,
+       "n": 112
+      },
+      "异常处理类": {
+       "recall@5": 0.7434,
+       "n": 152
+      },
+      "流程类": {
+       "recall@5": 0.8413,
+       "n": 63
+      }
+     },
+     "worst_class": "定义类"
+    },
+    "hybrid": {
+     "n": 327,
+     "recall@5": 0.7554,
+     "citation_top1": 0.5841,
+     "relevance_proxy": 0.6495,
+     "by_class": {
+      "定义类": {
+       "recall@5": 0.6875,
+       "n": 112
+      },
+      "异常处理类": {
+       "recall@5": 0.75,
+       "n": 152
+      },
+      "流程类": {
+       "recall@5": 0.8889,
+       "n": 63
+      }
+     },
+     "worst_class": "定义类"
+    },
+    "hybrid+rerank": {
+     "n": 327,
+     "recall@5": 0.7798,
+     "citation_top1": 0.5352,
+     "relevance_proxy": 0.6478,
+     "by_class": {
+      "定义类": {
+       "recall@5": 0.6786,
+       "n": 112
+      },
+      "异常处理类": {
+       "recall@5": 0.7961,
+       "n": 152
+      },
+      "流程类": {
+       "recall@5": 0.9206,
+       "n": 63
+      }
+     },
+     "worst_class": "定义类"
+    }
+   },
+   "chance": {
+    "n_docs": 29,
+    "recall@5": 0.1724,
+    "recall@1": 0.0345
+   },
+   "hybrid_gain": {
+    "vs_best_single": 0.0031,
     "note": "负数也照实写：混合不如单路说明这一档融合参数不合适。"
    }
   }
  },
  "embedder": {
-  "chunks": 25,
+  "chunks": 35,
   "embedder": "BAAI/bge-small-zh-v1.5",
   "embedder_is_semantic": true,
   "bm25_impl": "rank_bm25.BM25Okapi",
   "dense_backend": "faiss",
   "tokenizer": "jieba",
-  "reranker": null
+  "reranker": "BAAI/bge-reranker-base"
  }
 }

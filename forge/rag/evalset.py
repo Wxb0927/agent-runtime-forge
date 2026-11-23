@@ -11,6 +11,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -39,10 +40,30 @@ EXCEPTION_TPL = (
 )
 
 
+#: 枚举值 → 中文可读说法。⚠️ 第一版直接把 `material`、`cpi` 这类原始枚举塞进中文问句
+#: （生成出 "material时该怎么处理" 这种不像人话的题），题目本身就退化，
+#: 再拿它去算 Recall 就是在评一个不存在的场景。
+LABELS: dict[str, str] = {
+    "material": "材料费", "labor": "人工费", "manufacturing": "制造费用", "misc": "其他费用",
+    "cpi": "成本绩效指数", "eac": "完工成本估算", "phase": "阶段", "milestone": "里程碑",
+    "operation": "工序", "task": "任务", "advance": "预付款", "delivery": "到货款",
+    "acceptance": "验收款", "retention": "质保金", "bu-alpha": "甲业务线",
+    "bu-beta": "乙业务线", "bu-gamma": "丙业务线", "bu-delta": "丁业务线",
+}
+
+
+def _zh(term: str) -> str:
+    """⛔ 纯 ASCII 枚举值出现在中文问句里（先翻译，翻不了就弃用该词）。"""
+    if term in LABELS:
+        return LABELS[term]
+    return term if re.search(r"[一-鿿]", term) else ""
+
+
 def _terms(d: Doc) -> list[str]:
-    """题目用词全部来自语料自身：标题去掉前缀 + 标签。"""
+    """题目用词全部来自语料自身：标题去掉前缀 + 标签（一律过一遍 `_zh`）。"""
     head = d.title.split(" · ")[-1].split("：")[-1].strip()
-    out = [head] + [t for t in d.tags if t and t not in ("口径", "模板", "异常处理")]
+    raw = [head] + [t for t in d.tags if t and t not in ("口径", "模板", "异常处理")]
+    out = [t for t in (_zh(x) for x in raw) if t]
     seen: list[str] = []
     for t in out:
         if t not in seen:

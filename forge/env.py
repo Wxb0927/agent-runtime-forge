@@ -47,6 +47,19 @@ VARS: dict[str, str] = {
 DEFAULT_HF_ENDPOINT = "https://hf-mirror.com"
 
 
+#: 临时目录：Windows 上 TMP/TEMP 是**系统预设**（指向 C 盘），把它算成"用户显式设过"
+#: 就会让 guard 永远拦死自己（实测：`RuntimeError: 模型缓存指向系统盘… {'TEMP': …}`）。
+#: ⇒ 规则分两类：缓存/端点类**尊重已有值**，临时目录类**该覆盖就覆盖**
+#:   （只影响本进程；想改回去显式设 FORGE_KEEP_TEMP=1）。
+TEMP_VARS = ("TMPDIR", "TEMP", "TMP")
+
+
+def _looks_system(val: str) -> bool:
+    v = (val or "").replace("\\", "/").lower()
+    home = str(Path.home()).replace("\\", "/").lower()
+    return (not v) or v.startswith(home) or v.startswith("c:/users")
+
+
 def root() -> Path:
     return Path(os.environ.get(MANAGED) or DEFAULT_ROOT)
 
@@ -67,6 +80,11 @@ def configure_caches(environ: dict[str, str] | None = None) -> dict[str, str]:
         applied[key] = env[key]
     env.setdefault("HF_ENDPOINT", DEFAULT_HF_ENDPOINT)
     applied["HF_ENDPOINT"] = env["HF_ENDPOINT"]   # ⚠️ 也要进返回值：⛔ 只写 os.environ 会让调用方读到 None
+    if env.get("FORGE_KEEP_TEMP") != "1":
+        for key in TEMP_VARS:                     # 临时目录：系统默认值该被覆盖（见上面注释）
+            if _looks_system(env.get(key, "")):
+                env[key] = str((base / "tmp").as_posix())
+            applied[key] = env[key]
     env.setdefault(MANAGED, str(base))
     return applied
 

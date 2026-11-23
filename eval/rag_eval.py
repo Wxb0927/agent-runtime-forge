@@ -22,7 +22,7 @@ from typing import Any, Sequence
 
 from forge.rag import evalset
 from forge.rag.chunk import Chunk, chunk_all
-from forge.rag.corpus import chapters, doc_to_chapter
+from forge.rag.corpus import chapters, corpus, doc_to_chapter
 from forge.rag.retrieve import BM25Index, DenseIndex, HashEmbedder, Hit, Retriever, rrf, tokenize_zh
 
 REPORT_MD = Path("eval/rag_report.md")
@@ -38,7 +38,7 @@ class Reranker:
     ⚠️ `predict` 返回 **ndarray**（实测 `float(array([0.12]))` 抛
     "only 0-dimensional arrays can be converted to Python scalars"），
     所以取值要显式降成一维再取第 0 个；批量打分用 `rank_batch`，
-    ⛔ 一条条 predict（361 题 × 45 候选 = 1.6 万次单对推理，白慢一倍）。
+    ⛔ 一条条 predict（327 题 × 15 候选 ≈ 5 千次单对推理，白慢一倍）。
     """
     name: str = "cross-encoder"
     _m: Any = None
@@ -95,8 +95,8 @@ def relevance_proxy(query: str, hits: Sequence[Hit], embedder: Any) -> float:
 
 
 def evaluate(items: list[dict[str, Any]], chunks: list[Chunk], *, embedder: Any,
-             reranker: Any = None) -> dict[str, Any]:
-    gold_of = doc_to_chapter()
+             reranker: Any = None, merged: bool = False) -> dict[str, Any]:
+    gold_of = doc_to_chapter() if merged else {}
     retriever = Retriever(chunks, embedder=embedder, reranker=reranker)
     out: dict[str, Any] = {"embedder": retriever.describe(), "modes": {}}
     # ⚠️ 语料只有几章时 Recall@5 会**饱和**：随机选 5 块的命中率就有 chance_recall。
@@ -150,7 +150,8 @@ def evaluate(items: list[dict[str, Any]], chunks: list[Chunk], *, embedder: Any,
     return out
 
 
-def render(rep: dict[str, Any], chunk_counts: dict[str, int], qa_counts: dict[str, int]) -> str:
+def render(rep: dict[str, Any], chunk_counts: dict[str, int], qa_counts: dict[str, int],
+         merged_note: bool = False) -> str:
     e = rep["embedder"]
     lines = [
         f"# RAG 评测报告（{date.today().isoformat()}）", "",
@@ -163,7 +164,9 @@ def render(rep: dict[str, Any], chunk_counts: dict[str, int], qa_counts: dict[st
             e["reranker"] or "未加载"),
         "📌 **换分词器或换 embedder，分数就会变**（实测：装上 jieba 后 BM25 从 0.8698 → 0.9806）"
         "⇒ 每个数字都必须连着上面这行配置一起看，⛔ 裸报一个 Recall。",
-        f"- 语料：6 章（由 29 条口径合并）；分块 **fixed={chunk_counts['fixed']} / "
+        f"- 检索单位：{rep['by_strategy']['section']['chance']['n_docs']} 个"
+        f"（{'合并后的章节档，⛔ 当主结论——候选太少指标会饱和' if merged_note else '原口径条目档，主结论用这档'}）；"
+        f"分块 **fixed={chunk_counts['fixed']} / "
         f"section={chunk_counts['section']}**（两种策略真的切出了不同块数，⛔ 空转对照）",
         f"- 评估集：**{qa_counts['合计']} 条** = " +
         " + ".join(f"{c} {n}" for c, n in qa_counts.items() if c != "合计") +
@@ -215,6 +218,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--semantic", action="store_true", help="用 BGE 语义模型（会下模型到 D 盘）")
     ap.add_argument("--rerank", action="store_true", help="额外加载 CrossEncoder 重排器")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--merged", action="store_true",
+                    help="用合并后的 6 章做检索单位（对照档；⛔ 当主结论——候选只有 6 个，指标会饱和）")
     ap.add_argument("--tag", default="",
                     help="报告后缀：'' = 默认档（哈希向量，只证明管线通）；"
                          "semantic = 语义档（才是能写进简历的质量结论）。两份并存，⛔ 互相覆盖")
@@ -239,15 +244,20 @@ def main(argv: list[str] | None = None) -> int:
         embedder = HashEmbedder()
     reranker = try_reranker() if (a.rerank and a.semantic) else None
 
-    ch = chapters()
-    chunk_sets = chunk_all(ch, size=160, overlap=40, max_len=240)
-    by_strategy = {name: evaluate(items, cs, embedder=embedder, reranker=reranker)
+    # ⚠️ 检索与打分单位用 **29 条口径**，⛔ 用合并后的 6 章：
+    #    6 个候选时瞎猜 Recall@5 就有 0.833，指标饱和到看不出任何差异（今天就是这么被骗过一次，
+    #    还差点把"重排器让效果下降"当成结论写进简历）。章节合并档留给 --merged 做对照。
+    unit_docs = chapters() if a.merged else corpus()
+    chunk_sets = chunk_all(unit_docs, size=110 if a.merged else 120, overlap=30, max_len=170)
+    by_strategy = {name: evaluate(items, cs, embedder=embedder, reranker=reranker,
+                                  merged=a.merged)
                    for name, cs in chunk_sets.items()}
     rep = {"generated_on": date.today().isoformat(), "k": K,
            "by_strategy": by_strategy,
            "embedder": by_strategy["fixed"]["embedder"]}
     REPORT_MD.write_text(render(rep, {k: len(v) for k, v in chunk_sets.items()},
-                                evalset.counts(items)), encoding="utf-8", newline="")
+                                evalset.counts(items), merged_note=a.merged),
+                       encoding="utf-8", newline="")
     REPORT_JSON.write_text(json.dumps(rep, ensure_ascii=False, indent=1), encoding="utf-8",
                            newline="")
     for name, block in by_strategy.items():

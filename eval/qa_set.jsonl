@@ -1,47 +1,47 @@
-{"id": "qa-0001", "class": "定义类", "question": "material的口径是什么", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
+{"id": "qa-0001", "class": "定义类", "question": "材料费的口径是什么", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
 {"id": "qa-0002", "class": "定义类", "question": "预算的口径是什么", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
-{"id": "qa-0003", "class": "定义类", "question": "material具体指什么", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
+{"id": "qa-0003", "class": "定义类", "question": "材料费具体指什么", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
 {"id": "qa-0004", "class": "定义类", "question": "预算具体指什么", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
-{"id": "qa-0005", "class": "定义类", "question": "material怎么定义", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
+{"id": "qa-0005", "class": "定义类", "question": "材料费怎么定义", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
 {"id": "qa-0006", "class": "定义类", "question": "预算怎么定义", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
-{"id": "qa-0007", "class": "定义类", "question": "material包含哪些内容", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
+{"id": "qa-0007", "class": "定义类", "question": "材料费包含哪些内容", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
 {"id": "qa-0008", "class": "定义类", "question": "预算包含哪些内容", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
-{"id": "qa-0009", "class": "异常处理类", "question": "material时该怎么处理", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
+{"id": "qa-0009", "class": "异常处理类", "question": "材料费时该怎么处理", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
 {"id": "qa-0010", "class": "异常处理类", "question": "预算时该怎么处理", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
-{"id": "qa-0011", "class": "异常处理类", "question": "遇到material要怎么办", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
+{"id": "qa-0011", "class": "异常处理类", "question": "遇到材料费要怎么办", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
 {"id": "qa-0012", "class": "异常处理类", "question": "遇到预算要怎么办", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
-{"id": "qa-0013", "class": "异常处理类", "question": "material的情况下结果应该是什么", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
+{"id": "qa-0013", "class": "异常处理类", "question": "材料费的情况下结果应该是什么", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
 {"id": "qa-0014", "class": "异常处理类", "question": "预算的情况下结果应该是什么", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
-{"id": "qa-0015", "class": "异常处理类", "question": "为什么material不能直接算成 0", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
+{"id": "qa-0015", "class": "异常处理类", "question": "为什么材料费不能直接算成 0", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
 {"id": "qa-0016", "class": "异常处理类", "question": "为什么预算不能直接算成 0", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
-{"id": "qa-0017", "class": "流程类", "question": "material要走哪些步骤", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
-{"id": "qa-0018", "class": "定义类", "question": "labor的口径是什么", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
-{"id": "qa-0019", "class": "定义类", "question": "labor具体指什么", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
-{"id": "qa-0020", "class": "定义类", "question": "labor怎么定义", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
-{"id": "qa-0021", "class": "定义类", "question": "labor包含哪些内容", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
-{"id": "qa-0022", "class": "异常处理类", "question": "labor时该怎么处理", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
-{"id": "qa-0023", "class": "异常处理类", "question": "遇到labor要怎么办", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
-{"id": "qa-0024", "class": "异常处理类", "question": "labor的情况下结果应该是什么", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
-{"id": "qa-0025", "class": "异常处理类", "question": "为什么labor不能直接算成 0", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
-{"id": "qa-0026", "class": "流程类", "question": "labor要走哪些步骤", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
-{"id": "qa-0027", "class": "定义类", "question": "manufacturing的口径是什么", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
-{"id": "qa-0028", "class": "定义类", "question": "manufacturing具体指什么", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
-{"id": "qa-0029", "class": "定义类", "question": "manufacturing怎么定义", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
-{"id": "qa-0030", "class": "定义类", "question": "manufacturing包含哪些内容", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
-{"id": "qa-0031", "class": "异常处理类", "question": "manufacturing时该怎么处理", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
-{"id": "qa-0032", "class": "异常处理类", "question": "遇到manufacturing要怎么办", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
-{"id": "qa-0033", "class": "异常处理类", "question": "manufacturing的情况下结果应该是什么", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
-{"id": "qa-0034", "class": "异常处理类", "question": "为什么manufacturing不能直接算成 0", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
-{"id": "qa-0035", "class": "流程类", "question": "manufacturing要走哪些步骤", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
-{"id": "qa-0036", "class": "定义类", "question": "misc的口径是什么", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
-{"id": "qa-0037", "class": "定义类", "question": "misc具体指什么", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
-{"id": "qa-0038", "class": "定义类", "question": "misc怎么定义", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
-{"id": "qa-0039", "class": "定义类", "question": "misc包含哪些内容", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
-{"id": "qa-0040", "class": "异常处理类", "question": "misc时该怎么处理", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
-{"id": "qa-0041", "class": "异常处理类", "question": "遇到misc要怎么办", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
-{"id": "qa-0042", "class": "异常处理类", "question": "misc的情况下结果应该是什么", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
-{"id": "qa-0043", "class": "异常处理类", "question": "为什么misc不能直接算成 0", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
-{"id": "qa-0044", "class": "流程类", "question": "misc要走哪些步骤", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
+{"id": "qa-0017", "class": "流程类", "question": "材料费要走哪些步骤", "gold_docs": ["rule-budget-material"], "gold_chunks_prefix": "rule-budget-material#", "kind": "rule"}
+{"id": "qa-0018", "class": "定义类", "question": "人工费的口径是什么", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
+{"id": "qa-0019", "class": "定义类", "question": "人工费具体指什么", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
+{"id": "qa-0020", "class": "定义类", "question": "人工费怎么定义", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
+{"id": "qa-0021", "class": "定义类", "question": "人工费包含哪些内容", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
+{"id": "qa-0022", "class": "异常处理类", "question": "人工费时该怎么处理", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
+{"id": "qa-0023", "class": "异常处理类", "question": "遇到人工费要怎么办", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
+{"id": "qa-0024", "class": "异常处理类", "question": "人工费的情况下结果应该是什么", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
+{"id": "qa-0025", "class": "异常处理类", "question": "为什么人工费不能直接算成 0", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
+{"id": "qa-0026", "class": "流程类", "question": "人工费要走哪些步骤", "gold_docs": ["rule-budget-labor"], "gold_chunks_prefix": "rule-budget-labor#", "kind": "rule"}
+{"id": "qa-0027", "class": "定义类", "question": "制造费用的口径是什么", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
+{"id": "qa-0028", "class": "定义类", "question": "制造费用具体指什么", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
+{"id": "qa-0029", "class": "定义类", "question": "制造费用怎么定义", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
+{"id": "qa-0030", "class": "定义类", "question": "制造费用包含哪些内容", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
+{"id": "qa-0031", "class": "异常处理类", "question": "制造费用时该怎么处理", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
+{"id": "qa-0032", "class": "异常处理类", "question": "遇到制造费用要怎么办", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
+{"id": "qa-0033", "class": "异常处理类", "question": "制造费用的情况下结果应该是什么", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
+{"id": "qa-0034", "class": "异常处理类", "question": "为什么制造费用不能直接算成 0", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
+{"id": "qa-0035", "class": "流程类", "question": "制造费用要走哪些步骤", "gold_docs": ["rule-budget-manufacturing"], "gold_chunks_prefix": "rule-budget-manufacturing#", "kind": "rule"}
+{"id": "qa-0036", "class": "定义类", "question": "其他费用的口径是什么", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
+{"id": "qa-0037", "class": "定义类", "question": "其他费用具体指什么", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
+{"id": "qa-0038", "class": "定义类", "question": "其他费用怎么定义", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
+{"id": "qa-0039", "class": "定义类", "question": "其他费用包含哪些内容", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
+{"id": "qa-0040", "class": "异常处理类", "question": "其他费用时该怎么处理", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
+{"id": "qa-0041", "class": "异常处理类", "question": "遇到其他费用要怎么办", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
+{"id": "qa-0042", "class": "异常处理类", "question": "其他费用的情况下结果应该是什么", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
+{"id": "qa-0043", "class": "异常处理类", "question": "为什么其他费用不能直接算成 0", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
+{"id": "qa-0044", "class": "流程类", "question": "其他费用要走哪些步骤", "gold_docs": ["rule-budget-misc"], "gold_chunks_prefix": "rule-budget-misc#", "kind": "rule"}
 {"id": "qa-0045", "class": "定义类", "question": "实际成本的加总口径的口径是什么", "gold_docs": ["rule-cost-scope"], "gold_chunks_prefix": "rule-cost-scope#", "kind": "rule"}
 {"id": "qa-0046", "class": "定义类", "question": "成本的口径是什么", "gold_docs": ["rule-cost-scope"], "gold_chunks_prefix": "rule-cost-scope#", "kind": "rule"}
 {"id": "qa-0047", "class": "定义类", "question": "实际成本的加总口径具体指什么", "gold_docs": ["rule-cost-scope"], "gold_chunks_prefix": "rule-cost-scope#", "kind": "rule"}
@@ -231,131 +231,97 @@
 {"id": "qa-0231", "class": "异常处理类", "question": "为什么说法模糊时的降级路径不能直接算成 0", "gold_docs": ["rule-ambiguity-fallback"], "gold_chunks_prefix": "rule-ambiguity-fallback#", "kind": "rule"}
 {"id": "qa-0232", "class": "异常处理类", "question": "为什么路由不能直接算成 0", "gold_docs": ["rule-ambiguity-fallback"], "gold_chunks_prefix": "rule-ambiguity-fallback#", "kind": "rule"}
 {"id": "qa-0233", "class": "流程类", "question": "说法模糊时的降级路径要走哪些步骤", "gold_docs": ["rule-ambiguity-fallback"], "gold_chunks_prefix": "rule-ambiguity-fallback#", "kind": "rule"}
-{"id": "qa-0234", "class": "定义类", "question": "prepayment的口径是什么", "gold_docs": ["rule-payment-prepayment"], "gold_chunks_prefix": "rule-payment-prepayment#", "kind": "rule"}
-{"id": "qa-0235", "class": "定义类", "question": "prepayment具体指什么", "gold_docs": ["rule-payment-prepayment"], "gold_chunks_prefix": "rule-payment-prepayment#", "kind": "rule"}
-{"id": "qa-0236", "class": "定义类", "question": "prepayment怎么定义", "gold_docs": ["rule-payment-prepayment"], "gold_chunks_prefix": "rule-payment-prepayment#", "kind": "rule"}
-{"id": "qa-0237", "class": "定义类", "question": "prepayment包含哪些内容", "gold_docs": ["rule-payment-prepayment"], "gold_chunks_prefix": "rule-payment-prepayment#", "kind": "rule"}
-{"id": "qa-0238", "class": "异常处理类", "question": "prepayment时该怎么处理", "gold_docs": ["rule-payment-prepayment"], "gold_chunks_prefix": "rule-payment-prepayment#", "kind": "rule"}
-{"id": "qa-0239", "class": "异常处理类", "question": "遇到prepayment要怎么办", "gold_docs": ["rule-payment-prepayment"], "gold_chunks_prefix": "rule-payment-prepayment#", "kind": "rule"}
-{"id": "qa-0240", "class": "异常处理类", "question": "prepayment的情况下结果应该是什么", "gold_docs": ["rule-payment-prepayment"], "gold_chunks_prefix": "rule-payment-prepayment#", "kind": "rule"}
-{"id": "qa-0241", "class": "异常处理类", "question": "为什么prepayment不能直接算成 0", "gold_docs": ["rule-payment-prepayment"], "gold_chunks_prefix": "rule-payment-prepayment#", "kind": "rule"}
-{"id": "qa-0242", "class": "流程类", "question": "prepayment要走哪些步骤", "gold_docs": ["rule-payment-prepayment"], "gold_chunks_prefix": "rule-payment-prepayment#", "kind": "rule"}
-{"id": "qa-0243", "class": "定义类", "question": "arrival的口径是什么", "gold_docs": ["rule-payment-arrival"], "gold_chunks_prefix": "rule-payment-arrival#", "kind": "rule"}
-{"id": "qa-0244", "class": "定义类", "question": "arrival具体指什么", "gold_docs": ["rule-payment-arrival"], "gold_chunks_prefix": "rule-payment-arrival#", "kind": "rule"}
-{"id": "qa-0245", "class": "定义类", "question": "arrival怎么定义", "gold_docs": ["rule-payment-arrival"], "gold_chunks_prefix": "rule-payment-arrival#", "kind": "rule"}
-{"id": "qa-0246", "class": "定义类", "question": "arrival包含哪些内容", "gold_docs": ["rule-payment-arrival"], "gold_chunks_prefix": "rule-payment-arrival#", "kind": "rule"}
-{"id": "qa-0247", "class": "异常处理类", "question": "arrival时该怎么处理", "gold_docs": ["rule-payment-arrival"], "gold_chunks_prefix": "rule-payment-arrival#", "kind": "rule"}
-{"id": "qa-0248", "class": "异常处理类", "question": "遇到arrival要怎么办", "gold_docs": ["rule-payment-arrival"], "gold_chunks_prefix": "rule-payment-arrival#", "kind": "rule"}
-{"id": "qa-0249", "class": "异常处理类", "question": "arrival的情况下结果应该是什么", "gold_docs": ["rule-payment-arrival"], "gold_chunks_prefix": "rule-payment-arrival#", "kind": "rule"}
-{"id": "qa-0250", "class": "异常处理类", "question": "为什么arrival不能直接算成 0", "gold_docs": ["rule-payment-arrival"], "gold_chunks_prefix": "rule-payment-arrival#", "kind": "rule"}
-{"id": "qa-0251", "class": "流程类", "question": "arrival要走哪些步骤", "gold_docs": ["rule-payment-arrival"], "gold_chunks_prefix": "rule-payment-arrival#", "kind": "rule"}
-{"id": "qa-0252", "class": "定义类", "question": "acceptance的口径是什么", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
-{"id": "qa-0253", "class": "定义类", "question": "acceptance具体指什么", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
-{"id": "qa-0254", "class": "定义类", "question": "acceptance怎么定义", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
-{"id": "qa-0255", "class": "定义类", "question": "acceptance包含哪些内容", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
-{"id": "qa-0256", "class": "异常处理类", "question": "acceptance时该怎么处理", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
-{"id": "qa-0257", "class": "异常处理类", "question": "遇到acceptance要怎么办", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
-{"id": "qa-0258", "class": "异常处理类", "question": "acceptance的情况下结果应该是什么", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
-{"id": "qa-0259", "class": "异常处理类", "question": "为什么acceptance不能直接算成 0", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
-{"id": "qa-0260", "class": "流程类", "question": "acceptance要走哪些步骤", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
-{"id": "qa-0261", "class": "定义类", "question": "warranty的口径是什么", "gold_docs": ["rule-payment-warranty"], "gold_chunks_prefix": "rule-payment-warranty#", "kind": "rule"}
-{"id": "qa-0262", "class": "定义类", "question": "warranty具体指什么", "gold_docs": ["rule-payment-warranty"], "gold_chunks_prefix": "rule-payment-warranty#", "kind": "rule"}
-{"id": "qa-0263", "class": "定义类", "question": "warranty怎么定义", "gold_docs": ["rule-payment-warranty"], "gold_chunks_prefix": "rule-payment-warranty#", "kind": "rule"}
-{"id": "qa-0264", "class": "定义类", "question": "warranty包含哪些内容", "gold_docs": ["rule-payment-warranty"], "gold_chunks_prefix": "rule-payment-warranty#", "kind": "rule"}
-{"id": "qa-0265", "class": "异常处理类", "question": "warranty时该怎么处理", "gold_docs": ["rule-payment-warranty"], "gold_chunks_prefix": "rule-payment-warranty#", "kind": "rule"}
-{"id": "qa-0266", "class": "异常处理类", "question": "遇到warranty要怎么办", "gold_docs": ["rule-payment-warranty"], "gold_chunks_prefix": "rule-payment-warranty#", "kind": "rule"}
-{"id": "qa-0267", "class": "异常处理类", "question": "warranty的情况下结果应该是什么", "gold_docs": ["rule-payment-warranty"], "gold_chunks_prefix": "rule-payment-warranty#", "kind": "rule"}
-{"id": "qa-0268", "class": "异常处理类", "question": "为什么warranty不能直接算成 0", "gold_docs": ["rule-payment-warranty"], "gold_chunks_prefix": "rule-payment-warranty#", "kind": "rule"}
-{"id": "qa-0269", "class": "流程类", "question": "warranty要走哪些步骤", "gold_docs": ["rule-payment-warranty"], "gold_chunks_prefix": "rule-payment-warranty#", "kind": "rule"}
-{"id": "qa-0270", "class": "流程类", "question": "WBS 四层对象要走哪些步骤", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0271", "class": "流程类", "question": "WBS要走哪些步骤", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0272", "class": "流程类", "question": "WBS 四层对象的模板长什么样", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0273", "class": "流程类", "question": "WBS的模板长什么样", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0274", "class": "流程类", "question": "WBS 四层对象按什么顺序执行", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0275", "class": "流程类", "question": "WBS按什么顺序执行", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0276", "class": "流程类", "question": "WBS 四层对象需要哪些前置条件", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0277", "class": "流程类", "question": "WBS需要哪些前置条件", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0278", "class": "异常处理类", "question": "WBS 四层对象时该怎么处理", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0279", "class": "异常处理类", "question": "WBS时该怎么处理", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0280", "class": "异常处理类", "question": "遇到WBS 四层对象要怎么办", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0281", "class": "异常处理类", "question": "遇到WBS要怎么办", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0282", "class": "异常处理类", "question": "WBS 四层对象的情况下结果应该是什么", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0283", "class": "异常处理类", "question": "WBS的情况下结果应该是什么", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0284", "class": "异常处理类", "question": "为什么WBS 四层对象不能直接算成 0", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0285", "class": "异常处理类", "question": "为什么WBS不能直接算成 0", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
-{"id": "qa-0286", "class": "流程类", "question": "非标装备项目的典型工序链要走哪些步骤", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0287", "class": "流程类", "question": "流程要走哪些步骤", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0288", "class": "流程类", "question": "非标装备项目的典型工序链的模板长什么样", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0289", "class": "流程类", "question": "流程的模板长什么样", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0290", "class": "流程类", "question": "非标装备项目的典型工序链按什么顺序执行", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0291", "class": "流程类", "question": "流程按什么顺序执行", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0292", "class": "流程类", "question": "非标装备项目的典型工序链需要哪些前置条件", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0293", "class": "流程类", "question": "流程需要哪些前置条件", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0294", "class": "异常处理类", "question": "非标装备项目的典型工序链时该怎么处理", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0295", "class": "异常处理类", "question": "流程时该怎么处理", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0296", "class": "异常处理类", "question": "遇到非标装备项目的典型工序链要怎么办", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0297", "class": "异常处理类", "question": "遇到流程要怎么办", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0298", "class": "异常处理类", "question": "非标装备项目的典型工序链的情况下结果应该是什么", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0299", "class": "异常处理类", "question": "流程的情况下结果应该是什么", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0300", "class": "异常处理类", "question": "为什么非标装备项目的典型工序链不能直接算成 0", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0301", "class": "异常处理类", "question": "为什么流程不能直接算成 0", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
-{"id": "qa-0302", "class": "流程类", "question": "交付物清单模板要走哪些步骤", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0303", "class": "流程类", "question": "交付物要走哪些步骤", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0304", "class": "流程类", "question": "交付物清单模板的模板长什么样", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0305", "class": "流程类", "question": "交付物的模板长什么样", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0306", "class": "流程类", "question": "交付物清单模板按什么顺序执行", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0307", "class": "流程类", "question": "交付物按什么顺序执行", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0308", "class": "流程类", "question": "交付物清单模板需要哪些前置条件", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0309", "class": "流程类", "question": "交付物需要哪些前置条件", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0310", "class": "异常处理类", "question": "交付物清单模板时该怎么处理", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0311", "class": "异常处理类", "question": "交付物时该怎么处理", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0312", "class": "异常处理类", "question": "遇到交付物清单模板要怎么办", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0313", "class": "异常处理类", "question": "遇到交付物要怎么办", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0314", "class": "异常处理类", "question": "交付物清单模板的情况下结果应该是什么", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0315", "class": "异常处理类", "question": "交付物的情况下结果应该是什么", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0316", "class": "异常处理类", "question": "为什么交付物清单模板不能直接算成 0", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0317", "class": "异常处理类", "question": "为什么交付物不能直接算成 0", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
-{"id": "qa-0318", "class": "流程类", "question": "工期模板里⛔ 放实际工期字段要走哪些步骤", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
-{"id": "qa-0319", "class": "流程类", "question": "工期模板里⛔ 放实际工期字段的模板长什么样", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
-{"id": "qa-0320", "class": "流程类", "question": "工期模板里⛔ 放实际工期字段按什么顺序执行", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
-{"id": "qa-0321", "class": "流程类", "question": "工期模板里⛔ 放实际工期字段需要哪些前置条件", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
-{"id": "qa-0322", "class": "异常处理类", "question": "工期模板里⛔ 放实际工期字段时该怎么处理", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
-{"id": "qa-0323", "class": "异常处理类", "question": "遇到工期模板里⛔ 放实际工期字段要怎么办", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
-{"id": "qa-0324", "class": "异常处理类", "question": "工期模板里⛔ 放实际工期字段的情况下结果应该是什么", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
-{"id": "qa-0325", "class": "异常处理类", "question": "为什么工期模板里⛔ 放实际工期字段不能直接算成 0", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
-{"id": "qa-0326", "class": "流程类", "question": "bu-alpha要走哪些步骤", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
-{"id": "qa-0327", "class": "流程类", "question": "立项要走哪些步骤", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
-{"id": "qa-0328", "class": "流程类", "question": "bu-alpha的模板长什么样", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
-{"id": "qa-0329", "class": "流程类", "question": "立项的模板长什么样", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
-{"id": "qa-0330", "class": "流程类", "question": "bu-alpha按什么顺序执行", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
-{"id": "qa-0331", "class": "流程类", "question": "立项按什么顺序执行", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
-{"id": "qa-0332", "class": "流程类", "question": "bu-alpha需要哪些前置条件", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
-{"id": "qa-0333", "class": "流程类", "question": "立项需要哪些前置条件", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
-{"id": "qa-0334", "class": "异常处理类", "question": "bu-alpha时该怎么处理", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
-{"id": "qa-0335", "class": "异常处理类", "question": "遇到bu-alpha要怎么办", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
-{"id": "qa-0336", "class": "异常处理类", "question": "bu-alpha的情况下结果应该是什么", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
-{"id": "qa-0337", "class": "异常处理类", "question": "为什么bu-alpha不能直接算成 0", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
-{"id": "qa-0338", "class": "流程类", "question": "bu-beta要走哪些步骤", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
-{"id": "qa-0339", "class": "流程类", "question": "bu-beta的模板长什么样", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
-{"id": "qa-0340", "class": "流程类", "question": "bu-beta按什么顺序执行", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
-{"id": "qa-0341", "class": "流程类", "question": "bu-beta需要哪些前置条件", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
-{"id": "qa-0342", "class": "异常处理类", "question": "bu-beta时该怎么处理", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
-{"id": "qa-0343", "class": "异常处理类", "question": "遇到bu-beta要怎么办", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
-{"id": "qa-0344", "class": "异常处理类", "question": "bu-beta的情况下结果应该是什么", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
-{"id": "qa-0345", "class": "异常处理类", "question": "为什么bu-beta不能直接算成 0", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
-{"id": "qa-0346", "class": "流程类", "question": "bu-delta要走哪些步骤", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
-{"id": "qa-0347", "class": "流程类", "question": "bu-delta的模板长什么样", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
-{"id": "qa-0348", "class": "流程类", "question": "bu-delta按什么顺序执行", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
-{"id": "qa-0349", "class": "流程类", "question": "bu-delta需要哪些前置条件", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
-{"id": "qa-0350", "class": "异常处理类", "question": "bu-delta时该怎么处理", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
-{"id": "qa-0351", "class": "异常处理类", "question": "遇到bu-delta要怎么办", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
-{"id": "qa-0352", "class": "异常处理类", "question": "bu-delta的情况下结果应该是什么", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
-{"id": "qa-0353", "class": "异常处理类", "question": "为什么bu-delta不能直接算成 0", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
-{"id": "qa-0354", "class": "流程类", "question": "bu-gamma要走哪些步骤", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
-{"id": "qa-0355", "class": "流程类", "question": "bu-gamma的模板长什么样", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
-{"id": "qa-0356", "class": "流程类", "question": "bu-gamma按什么顺序执行", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
-{"id": "qa-0357", "class": "流程类", "question": "bu-gamma需要哪些前置条件", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
-{"id": "qa-0358", "class": "异常处理类", "question": "bu-gamma时该怎么处理", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
-{"id": "qa-0359", "class": "异常处理类", "question": "遇到bu-gamma要怎么办", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
-{"id": "qa-0360", "class": "异常处理类", "question": "bu-gamma的情况下结果应该是什么", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
-{"id": "qa-0361", "class": "异常处理类", "question": "为什么bu-gamma不能直接算成 0", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
+{"id": "qa-0234", "class": "流程类", "question": "回款要走哪些步骤", "gold_docs": ["rule-payment-prepayment"], "gold_chunks_prefix": "rule-payment-prepayment#", "kind": "rule"}
+{"id": "qa-0235", "class": "定义类", "question": "验收款的口径是什么", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
+{"id": "qa-0236", "class": "定义类", "question": "验收款具体指什么", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
+{"id": "qa-0237", "class": "定义类", "question": "验收款怎么定义", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
+{"id": "qa-0238", "class": "定义类", "question": "验收款包含哪些内容", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
+{"id": "qa-0239", "class": "异常处理类", "question": "验收款时该怎么处理", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
+{"id": "qa-0240", "class": "异常处理类", "question": "遇到验收款要怎么办", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
+{"id": "qa-0241", "class": "异常处理类", "question": "验收款的情况下结果应该是什么", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
+{"id": "qa-0242", "class": "异常处理类", "question": "为什么验收款不能直接算成 0", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
+{"id": "qa-0243", "class": "流程类", "question": "验收款要走哪些步骤", "gold_docs": ["rule-payment-acceptance"], "gold_chunks_prefix": "rule-payment-acceptance#", "kind": "rule"}
+{"id": "qa-0244", "class": "流程类", "question": "WBS 四层对象要走哪些步骤", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
+{"id": "qa-0245", "class": "流程类", "question": "WBS 四层对象的模板长什么样", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
+{"id": "qa-0246", "class": "流程类", "question": "WBS 四层对象按什么顺序执行", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
+{"id": "qa-0247", "class": "流程类", "question": "WBS 四层对象需要哪些前置条件", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
+{"id": "qa-0248", "class": "异常处理类", "question": "WBS 四层对象时该怎么处理", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
+{"id": "qa-0249", "class": "异常处理类", "question": "遇到WBS 四层对象要怎么办", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
+{"id": "qa-0250", "class": "异常处理类", "question": "WBS 四层对象的情况下结果应该是什么", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
+{"id": "qa-0251", "class": "异常处理类", "question": "为什么WBS 四层对象不能直接算成 0", "gold_docs": ["tpl-wbs-levels"], "gold_chunks_prefix": "tpl-wbs-levels#", "kind": "template"}
+{"id": "qa-0252", "class": "流程类", "question": "非标装备项目的典型工序链要走哪些步骤", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0253", "class": "流程类", "question": "流程要走哪些步骤", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0254", "class": "流程类", "question": "非标装备项目的典型工序链的模板长什么样", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0255", "class": "流程类", "question": "流程的模板长什么样", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0256", "class": "流程类", "question": "非标装备项目的典型工序链按什么顺序执行", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0257", "class": "流程类", "question": "流程按什么顺序执行", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0258", "class": "流程类", "question": "非标装备项目的典型工序链需要哪些前置条件", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0259", "class": "流程类", "question": "流程需要哪些前置条件", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0260", "class": "异常处理类", "question": "非标装备项目的典型工序链时该怎么处理", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0261", "class": "异常处理类", "question": "流程时该怎么处理", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0262", "class": "异常处理类", "question": "遇到非标装备项目的典型工序链要怎么办", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0263", "class": "异常处理类", "question": "遇到流程要怎么办", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0264", "class": "异常处理类", "question": "非标装备项目的典型工序链的情况下结果应该是什么", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0265", "class": "异常处理类", "question": "流程的情况下结果应该是什么", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0266", "class": "异常处理类", "question": "为什么非标装备项目的典型工序链不能直接算成 0", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0267", "class": "异常处理类", "question": "为什么流程不能直接算成 0", "gold_docs": ["tpl-equipment-chain"], "gold_chunks_prefix": "tpl-equipment-chain#", "kind": "template"}
+{"id": "qa-0268", "class": "流程类", "question": "交付物清单模板要走哪些步骤", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0269", "class": "流程类", "question": "交付物要走哪些步骤", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0270", "class": "流程类", "question": "交付物清单模板的模板长什么样", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0271", "class": "流程类", "question": "交付物的模板长什么样", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0272", "class": "流程类", "question": "交付物清单模板按什么顺序执行", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0273", "class": "流程类", "question": "交付物按什么顺序执行", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0274", "class": "流程类", "question": "交付物清单模板需要哪些前置条件", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0275", "class": "流程类", "question": "交付物需要哪些前置条件", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0276", "class": "异常处理类", "question": "交付物清单模板时该怎么处理", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0277", "class": "异常处理类", "question": "交付物时该怎么处理", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0278", "class": "异常处理类", "question": "遇到交付物清单模板要怎么办", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0279", "class": "异常处理类", "question": "遇到交付物要怎么办", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0280", "class": "异常处理类", "question": "交付物清单模板的情况下结果应该是什么", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0281", "class": "异常处理类", "question": "交付物的情况下结果应该是什么", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0282", "class": "异常处理类", "question": "为什么交付物清单模板不能直接算成 0", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0283", "class": "异常处理类", "question": "为什么交付物不能直接算成 0", "gold_docs": ["tpl-deliverables"], "gold_chunks_prefix": "tpl-deliverables#", "kind": "template"}
+{"id": "qa-0284", "class": "流程类", "question": "工期模板里⛔ 放实际工期字段要走哪些步骤", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
+{"id": "qa-0285", "class": "流程类", "question": "工期模板里⛔ 放实际工期字段的模板长什么样", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
+{"id": "qa-0286", "class": "流程类", "question": "工期模板里⛔ 放实际工期字段按什么顺序执行", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
+{"id": "qa-0287", "class": "流程类", "question": "工期模板里⛔ 放实际工期字段需要哪些前置条件", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
+{"id": "qa-0288", "class": "异常处理类", "question": "工期模板里⛔ 放实际工期字段时该怎么处理", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
+{"id": "qa-0289", "class": "异常处理类", "question": "遇到工期模板里⛔ 放实际工期字段要怎么办", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
+{"id": "qa-0290", "class": "异常处理类", "question": "工期模板里⛔ 放实际工期字段的情况下结果应该是什么", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
+{"id": "qa-0291", "class": "异常处理类", "question": "为什么工期模板里⛔ 放实际工期字段不能直接算成 0", "gold_docs": ["tpl-no-actual-duration"], "gold_chunks_prefix": "tpl-no-actual-duration#", "kind": "template"}
+{"id": "qa-0292", "class": "流程类", "question": "甲业务线要走哪些步骤", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
+{"id": "qa-0293", "class": "流程类", "question": "立项要走哪些步骤", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
+{"id": "qa-0294", "class": "流程类", "question": "甲业务线的模板长什么样", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
+{"id": "qa-0295", "class": "流程类", "question": "立项的模板长什么样", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
+{"id": "qa-0296", "class": "流程类", "question": "甲业务线按什么顺序执行", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
+{"id": "qa-0297", "class": "流程类", "question": "立项按什么顺序执行", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
+{"id": "qa-0298", "class": "流程类", "question": "甲业务线需要哪些前置条件", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
+{"id": "qa-0299", "class": "流程类", "question": "立项需要哪些前置条件", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
+{"id": "qa-0300", "class": "异常处理类", "question": "甲业务线时该怎么处理", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
+{"id": "qa-0301", "class": "异常处理类", "question": "遇到甲业务线要怎么办", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
+{"id": "qa-0302", "class": "异常处理类", "question": "甲业务线的情况下结果应该是什么", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
+{"id": "qa-0303", "class": "异常处理类", "question": "为什么甲业务线不能直接算成 0", "gold_docs": ["tpl-intake-bu-alpha"], "gold_chunks_prefix": "tpl-intake-bu-alpha#", "kind": "template"}
+{"id": "qa-0304", "class": "流程类", "question": "乙业务线要走哪些步骤", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
+{"id": "qa-0305", "class": "流程类", "question": "乙业务线的模板长什么样", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
+{"id": "qa-0306", "class": "流程类", "question": "乙业务线按什么顺序执行", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
+{"id": "qa-0307", "class": "流程类", "question": "乙业务线需要哪些前置条件", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
+{"id": "qa-0308", "class": "异常处理类", "question": "乙业务线时该怎么处理", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
+{"id": "qa-0309", "class": "异常处理类", "question": "遇到乙业务线要怎么办", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
+{"id": "qa-0310", "class": "异常处理类", "question": "乙业务线的情况下结果应该是什么", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
+{"id": "qa-0311", "class": "异常处理类", "question": "为什么乙业务线不能直接算成 0", "gold_docs": ["tpl-intake-bu-beta"], "gold_chunks_prefix": "tpl-intake-bu-beta#", "kind": "template"}
+{"id": "qa-0312", "class": "流程类", "question": "丁业务线要走哪些步骤", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
+{"id": "qa-0313", "class": "流程类", "question": "丁业务线的模板长什么样", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
+{"id": "qa-0314", "class": "流程类", "question": "丁业务线按什么顺序执行", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
+{"id": "qa-0315", "class": "流程类", "question": "丁业务线需要哪些前置条件", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
+{"id": "qa-0316", "class": "异常处理类", "question": "丁业务线时该怎么处理", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
+{"id": "qa-0317", "class": "异常处理类", "question": "遇到丁业务线要怎么办", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
+{"id": "qa-0318", "class": "异常处理类", "question": "丁业务线的情况下结果应该是什么", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
+{"id": "qa-0319", "class": "异常处理类", "question": "为什么丁业务线不能直接算成 0", "gold_docs": ["tpl-intake-bu-delta"], "gold_chunks_prefix": "tpl-intake-bu-delta#", "kind": "template"}
+{"id": "qa-0320", "class": "流程类", "question": "丙业务线要走哪些步骤", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
+{"id": "qa-0321", "class": "流程类", "question": "丙业务线的模板长什么样", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
+{"id": "qa-0322", "class": "流程类", "question": "丙业务线按什么顺序执行", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
+{"id": "qa-0323", "class": "流程类", "question": "丙业务线需要哪些前置条件", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
+{"id": "qa-0324", "class": "异常处理类", "question": "丙业务线时该怎么处理", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
+{"id": "qa-0325", "class": "异常处理类", "question": "遇到丙业务线要怎么办", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
+{"id": "qa-0326", "class": "异常处理类", "question": "丙业务线的情况下结果应该是什么", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
+{"id": "qa-0327", "class": "异常处理类", "question": "为什么丙业务线不能直接算成 0", "gold_docs": ["tpl-intake-bu-gamma"], "gold_chunks_prefix": "tpl-intake-bu-gamma#", "kind": "template"}
