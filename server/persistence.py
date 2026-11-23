@@ -157,6 +157,13 @@ def describe_backends() -> dict[str, Any]:
     return {
         "trace_backend": "postgres" if dsn else "sqlite",
         "trace_host": (dsn.split('@')[-1].split('/')[0] if dsn else None),
-        "vector_backend": "qdrant" if vec else "in-process",
-        "vector_url": vec,
+        # ⚠️ 报"真用上了什么"，⛔ 报"环境变量设了没"：
+        #    服务请求路径⛔ 查向量库（RAG 评测是离线批处理，dense 用进程内 faiss），
+        #    所以就算 compose 起了 Qdrant，vector_in_use 也该诚实地是 False。
+        "vector_env_present": bool(vec),
+        "vector_env": vec,
+        "vector_in_use": False,
+        "vector_note": "服务路径不查向量库；RAG 评测用进程内 faiss。"
+                       "Qdrant 适配器在 server.persistence.QdrantDense，接入评测后才算启用",
+        "postgres_driver": None,
     }

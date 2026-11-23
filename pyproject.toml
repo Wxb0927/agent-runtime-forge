@@ -28,6 +28,10 @@ semantic = [                   # 真语义检索：uv sync --extra semantic
 ]
 zh = ["jieba>=0.42"]            # 中文分词增强；缺省时 tokenize_zh 自动回退（报告会写明用的哪个）
 mcp = ["mcp>=1.2"]              # 真 MCP 传输；清单/校验的等价性测试⛔ 它也能跑
+server = [                       # D6 容器形态：compose 设了 DATABASE_URL ⇒ 应用 import 时就要连 Postgres，
+    "psycopg[binary]>=3.1",      # 缺 psycopg 会直接 ImportError（这是好事，⛔ 悄悄回落 sqlite）
+    "qdrant-client>=1.9",        # FORGE_VECTOR_URL 的客户端
+]
 
 [dependency-groups]
 dev = [

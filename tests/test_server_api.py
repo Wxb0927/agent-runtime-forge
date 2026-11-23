@@ -28,9 +28,12 @@ client = TestClient(app)
 def test_healthz_reports_the_backends_it_actually_uses() -> None:
     h = client.get("/healthz").json()
     assert h["ok"] is True
-    # ⛔ 只报"服务活着"，要报"连的是哪个后端"（compose 里那两个服务必须被应用真用）
-    assert {"trace_backend", "vector_backend"} <= set(h)
+    # ⛔ 只报"服务活着"，要报"连的是哪个后端"；而且**装了没用的东西要自己承认**：
+    #     compose 起了 Qdrant，但服务请求路径确实⛔ 查向量库 ⇒ vector_in_use 必须是 False
+    #    （测试挂了就说明了这一点：宁可让 healthz 难看，⛔ 让监控好看）
+    assert {"trace_backend", "vector_in_use", "vector_env_present", "vector_note"} <= set(h)
     assert h["trace_backend"] in ("sqlite", "postgres")
+    assert h["vector_in_use"] is False and "faiss" in h["vector_note"]
 
 
 def test_ask_returns_valid_envelope_and_request_id() -> None:

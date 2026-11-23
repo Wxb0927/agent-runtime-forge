@@ -15,7 +15,7 @@ WORKDIR /app
 # 只用 uv 装依赖（不装项目本身：仓库是扁平布局 + PYTHONPATH，与 README 一致）
 COPY pyproject.toml uv.lock uv.toml ./
 RUN pip install --no-cache-dir uv==0.11.17 \
- && uv sync --frozen --no-dev --extra semantic
+ && uv sync --frozen --no-dev --extra semantic --extra server
 
 COPY forge/ ./forge/
 COPY eval/ ./eval/

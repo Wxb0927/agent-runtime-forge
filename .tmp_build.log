@@ -1,0 +1,4 @@
+--progress is a global compose flag, better use `docker compose --progress xx build ...
+invalid interpolation format for services.postgres.environment.POSTGRES_PASSWORD.
+You may need to escape any $ with another $.
+${FORGE_…l}`}
