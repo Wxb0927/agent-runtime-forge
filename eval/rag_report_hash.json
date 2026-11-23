@@ -1,0 +1,191 @@
+{
+ "generated_on": "2026-11-23",
+ "k": 5,
+ "by_strategy": {
+  "fixed": {
+   "embedder": {
+    "chunks": 25,
+    "embedder": "hash-ngram-256",
+    "embedder_is_semantic": false,
+    "bm25_impl": "rank_bm25.BM25Okapi",
+    "dense_backend": "faiss",
+    "tokenizer": "jieba",
+    "reranker": null
+   },
+   "modes": {
+    "bm25": {
+     "n": 361,
+     "recall@5": 0.9806,
+     "citation_top1": 0.7784,
+     "relevance_proxy": 0.5027,
+     "by_class": {
+      "定义类": {
+       "recall@5": 0.9839,
+       "n": 124
+      },
+      "异常处理类": {
+       "recall@5": 0.9702,
+       "n": 168
+      },
+      "流程类": {
+       "recall@5": 1.0,
+       "n": 69
+      }
+     },
+     "worst_class": "异常处理类"
+    },
+    "dense": {
+     "n": 361,
+     "recall@5": 0.9335,
+     "citation_top1": 0.7202,
+     "relevance_proxy": 0.4437,
+     "by_class": {
+      "定义类": {
+       "recall@5": 0.9355,
+       "n": 124
+      },
+      "异常处理类": {
+       "recall@5": 0.9345,
+       "n": 168
+      },
+      "流程类": {
+       "recall@5": 0.9275,
+       "n": 69
+      }
+     },
+     "worst_class": "流程类"
+    },
+    "hybrid": {
+     "n": 361,
+     "recall@5": 0.9806,
+     "citation_top1": 0.8199,
+     "relevance_proxy": 0.4964,
+     "by_class": {
+      "定义类": {
+       "recall@5": 0.9919,
+       "n": 124
+      },
+      "异常处理类": {
+       "recall@5": 0.9762,
+       "n": 168
+      },
+      "流程类": {
+       "recall@5": 0.971,
+       "n": 69
+      }
+     },
+     "worst_class": "流程类"
+    },
+    "hybrid+rerank": {
+     "skipped": "重排器未加载（离线默认不下载模型）"
+    }
+   },
+   "chance": {
+    "n_docs": 6,
+    "recall@5": 0.8333,
+    "recall@1": 0.1667
+   },
+   "hybrid_gain": {
+    "vs_best_single": 0.0,
+    "note": "负数也照实写：混合不如单路说明这一档融合参数不合适。"
+   }
+  },
+  "section": {
+   "embedder": {
+    "chunks": 15,
+    "embedder": "hash-ngram-256",
+    "embedder_is_semantic": false,
+    "bm25_impl": "rank_bm25.BM25Okapi",
+    "dense_backend": "faiss",
+    "tokenizer": "jieba",
+    "reranker": null
+   },
+   "modes": {
+    "bm25": {
+     "n": 361,
+     "recall@5": 0.9751,
+     "citation_top1": 0.7895,
+     "relevance_proxy": 0.5053,
+     "by_class": {
+      "定义类": {
+       "recall@5": 0.9839,
+       "n": 124
+      },
+      "异常处理类": {
+       "recall@5": 0.9583,
+       "n": 168
+      },
+      "流程类": {
+       "recall@5": 1.0,
+       "n": 69
+      }
+     },
+     "worst_class": "异常处理类"
+    },
+    "dense": {
+     "n": 361,
+     "recall@5": 0.9418,
+     "citation_top1": 0.6759,
+     "relevance_proxy": 0.4498,
+     "by_class": {
+      "定义类": {
+       "recall@5": 0.9516,
+       "n": 124
+      },
+      "异常处理类": {
+       "recall@5": 0.9345,
+       "n": 168
+      },
+      "流程类": {
+       "recall@5": 0.942,
+       "n": 69
+      }
+     },
+     "worst_class": "异常处理类"
+    },
+    "hybrid": {
+     "n": 361,
+     "recall@5": 0.9806,
+     "citation_top1": 0.8116,
+     "relevance_proxy": 0.5008,
+     "by_class": {
+      "定义类": {
+       "recall@5": 1.0,
+       "n": 124
+      },
+      "异常处理类": {
+       "recall@5": 0.9762,
+       "n": 168
+      },
+      "流程类": {
+       "recall@5": 0.9565,
+       "n": 69
+      }
+     },
+     "worst_class": "流程类"
+    },
+    "hybrid+rerank": {
+     "skipped": "重排器未加载（离线默认不下载模型）"
+    }
+   },
+   "chance": {
+    "n_docs": 6,
+    "recall@5": 0.8333,
+    "recall@1": 0.1667
+   },
+   "hybrid_gain": {
+    "vs_best_single": 0.0055,
+    "note": "负数也照实写：混合不如单路说明这一档融合参数不合适。"
+   }
+  }
+ },
+ "embedder": {
+  "chunks": 25,
+  "embedder": "hash-ngram-256",
+  "embedder_is_semantic": false,
+  "bm25_impl": "rank_bm25.BM25Okapi",
+  "dense_backend": "faiss",
+  "tokenizer": "jieba",
+  "reranker": null
+ }
+}

@@ -1,7 +1,21 @@
-# 本项目的所有下载物一律留在 D 盘，⛔ 再往 C 盘写缓存。
+# 本项目所有下载物一律留在 D 盘，⛔ 悄悄写系统盘（2026-11-18 用户要求）。
 # 之前 cache-dir 靠环境变量 UV_CACHE_DIR 指到 D:/uv/cache；写进这里才是**跟着仓库走**，
 # 换机器、换 shell、CI 上都不会悄悄退回 C 盘默认位置。
 cache-dir = "D:/uv/cache"
-# ⚠️ python-install-dir ⛔ 不是合法的 uv.toml 键（uv 会整份拒绝并报错，实测）；
-#    解释器位置只能用环境变量 UV_PYTHON_INSTALL_DIR 或 --python-install-dir 指定。
-#    当前解释器在 C 盘占 80 MB，是 D1 装的，搬走要重建 .venv，暂不动（README 有说明）。
+
+# ⚠️ 索引也写在这里而⛔ 写在 pyproject 的 [tool.uv] 里：
+#    同时存在时 uv 会**忽略** [tool.uv].index 并给出警告（实测看到过那条 warning），
+#    配置分散在两处迟早变成"以为配了、其实没生效"。
+[[index]]
+name = "aliyun"
+url = "https://mirrors.aliyun.com/pypi/simple/"
+default = true
+
+# torch 必须走 CPU 索引：PyPI 默认的 win_amd64 轮子是 cu121（约 2.5 GB），
+# 本项目只做 CPU 推理（约 200 MB）。explicit = 只给显式指定的包用。
+[[index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+# ⚠️ python-install-dir ⛔ 不是合法的 uv.toml 键（uv 整份拒绝并报 unknown field）；
+#    解释器位置只能用环境变量 UV_PYTHON_INSTALL_DIR 指定。

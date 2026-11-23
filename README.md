@@ -19,7 +19,7 @@
 | D2 | LangGraph 图式编排，含真实竞态的解法 + checkpointer + interrupt | ✅ 完成（2026-11-18） |
 | D3 | 工具契约层等价实现 + MCP Server | ✅ 契约层完成（2026-11-22）；MCP 封装按任务书属 D5，⛔ 提前做 |
 | D4 | 评估流水线（规则评分 / LLM-as-Judge / 回归差集 / 覆盖率矩阵 / PR 前检查） | ✅ 完成（2026-11-22），80 格矩阵 + 86 条语料 + 28/28 变异 |
-| D5 | RAG 检索线（本地 BGE 混合检索 + Reranker + 300 条业务 QA 评估集） | 🟡 管线与评测完成（361 条 QA、四档对比、MCP 等价性）；**语义档 / rerank / 真 MCP 往返因本机网络未跑成**，见「D5」节 |
+| D5 | RAG 检索线（本地 BGE 混合检索 + Reranker + 300 条业务 QA 评估集） | ✅ 完成（2026-11-23）：361 条 QA、**语义档 BGE + faiss + jieba 实跑**、MCP 真协议往返 9/9，两份报告并存（hash / semantic） |
 | D6 | FastAPI + SSE 服务化与可观测 | ⏳ 未开始 |
 | D7 | 架构图、指标表、讲解稿 | ⏳ 未开始 |
 
@@ -297,11 +297,24 @@ uv run python tools/intake_host.py --scratch .tmp/demo --thread t1 --continue
 
 # D5 · RAG 检索线 + MCP 等价性（**离线档完成，语义档未跑成**）
 
-⚠️ **先说没做到的部分**：本机网络当时慢到 15 MB 的 numpy 都要 15 分钟，
-`--extra semantic`（BGE 模型 + faiss + CrossEncoder）与 `--extra mcp` 的**真协议往返今天没跑成**。
-⇒ 下面所有分数都是 **`hash-ngram-256` 哈希向量**跑的：它⛔ 有语义能力，
-**只证明管线正确**（分块可回溯、融合去重、引用可判定、非法参数自愈），
-**⛔ 当成语义召回率写进简历或报告结论**。复跑命令见文末。
+⚠️ **先说清楚"跑过什么"**：本机 PyPI 直连慢到 15 MB 的 numpy 都要 15 分钟，
+所以把索引换成了国内镜像（`uv.toml` 里 `[[index]] aliyun default=true`；
+HuggingFace 走 `HF_ENDPOINT=https://hf-mirror.com`，由 `forge/env.py` 以 `setdefault` 语义设置，
+CI 想用官方站就显式覆盖）。换完之后 `--extra semantic` / `--extra mcp` 都装上了，
+**语义档与真 MCP 协议往返都跑成了**，于是有两份报告并存、各自标清配置：
+
+| 报告 | embedder | 用途 | 能拿来当结论吗 |
+|---|---|---|---|
+| `eval/rag_report_hash.md` | `hash-ngram-256` | **管线自检**：分块可回溯、融合去重、引用可判定、非法参数自愈 | ⛔ 不能当语义质量 |
+| `eval/rag_report_semantic.md` | `BAAI/bge-small-zh-v1.5` + `faiss` + `jieba` | **质量结论**：这才是可以写进简历的那组数 | ✅（但要看下面的随机基线） |
+
+📌 **一个必须自己戳穿的漂亮数字**：语料只有 6 章 ⇒ **瞎猜的 Recall@5 就有 0.8333**。
+所以语义档里 Recall@5 = 0.98~0.997 看着惊人，其实区分度有限；
+**真正有信息量的是"引用正确率(top1)"**（随机基线 0.1667）：
+bm25 **0.7784** → dense **0.8504** → hybrid **0.9391**（fixed 分块）。
+报告里把随机基线和"本轮用了哪个 embedder/分词器"一起印在表头——
+实测装上 jieba 之后 BM25 从 0.8698 跳到 0.9806，**换个依赖分数就变，
+⛔ 裸报一个 Recall**。
 
 ## 落点
 
@@ -313,32 +326,86 @@ uv run python tools/intake_host.py --scratch .tmp/demo --thread t1 --continue
 | 引用溯源 | 每条 chunk 带 `doc_id` 与 `source`（代码出处），`eval/rag_report.md` 报 `citation_top1` | ✅ |
 | 300 条 QA 评估集 | `forge/rag/evalset.py`：模板 × 注册表确定性生成，**实际 361 条**（定义 124 / 流程 69 / 异常处理 168），⛔ 人挑题 | ✅ |
 | Recall@5 / 正确引用率 / Answer Relevance | `eval/rag_eval.py` 四档对比 + 分类明细；Relevance 明确标 `proxy`（离线为词面覆盖，⛔ 冒充官方 AR） | ✅ 离线档 |
-| MCP Server | `forge/mcp/manifest.py`：工具清单**由 D3 的 `describe()` 派生**；`server.py` 只做协议翻译，校验一律走 `intent.run` ⇒ 两个面行为必然一致 | ✅ 等价性测试通过<br>⛔ 真协议往返（缺 `mcp` 包，smoke 显式 SKIP） |
+| MCP Server | `forge/mcp/manifest.py`：工具清单**由 D3 的 `describe()` 派生**；`server.py` 只做协议翻译，校验一律走 `intent.run` ⇒ 两面的**枚举合法性与数值出处同源**（⚠️ 实测两面在"未知参数"上**行为不同**，见「MCP 真协议往返」第 3 条——所以这句⛔ 写成"完全一致"） | ✅ 等价性测试 + **真协议往返 9/9** |
 | "什么场景不用向量检索" | 见本节末「为什么结构化问数⛔ 走向量召回」 | ✅ |
 
-## D5 实测读数（2026-11-22，**哈希向量档**）
+## D5 实测读数（2026-11-23）
 
-| 分块 | bm25 | dense | hybrid | hybrid+rerank |
+### 哈希向量档（`rag_report_hash.md`）——只证明管线
+
+| 分块 | bm25 | dense | hybrid |
+|---|---|---|---|
+| fixed（25 块） | 0.9806 | 0.9335 | 0.9806 |
+| section（15 块） | 0.9751 | 0.9418 | 0.9806 |
+
+（装上 jieba 之后 BM25 从 0.8698→0.9806——**分数随依赖变**，所以报告表头必须带配置。）
+这一档里 `dense` 一路⛔ 有语义能力，**它的存在只该拉低混合效果**；实测确实如此，
+所以拿这档说"混合检索有没有用"是无效的——要看下面那档。
+
+### 语义档（`rag_report_semantic.md`，`bge-small-zh-v1.5` + faiss + jieba）——这才是质量结论
+
+| 分块 | 模式 | Recall@5 | **引用正确率(top1)** | Relevance(proxy) |
 |---|---|---|---|---|
-| fixed（25 块） | 0.8698 | 0.8006 | 0.8781（**+0.0083**） | ⛔ skipped（重排器未加载） |
-| section（15 块） | **0.9197** | 0.8310 | 0.8975（**−0.0222**） | ⛔ skipped |
+| fixed | bm25 | 0.9806 | 0.7784 | 0.5899 |
+| fixed | dense | 0.9834 | 0.8504 | 0.6266 |
+| fixed | hybrid | **0.9861** | **0.9391** | 0.6189 |
+| section | bm25 | 0.9751 | 0.7895 | 0.5855 |
+| section | dense | **0.9972** | 0.8338 | 0.6191 |
+| section | hybrid | 0.9917 | 0.9114 | 0.6096 |
 
-- **混合相对单路的提升：section 档是负的**。照实写：RRF 里稠密那一路（哈希向量）在拉低结果，
-  这不是"融合没用"的结论，而是"**用无语义向量做第二路，融合只会引入噪声**"——正是本轮该暴露的问题。
-- **最差的一类问题：`异常处理类`**（fixed/bm25 只有 0.7857，明显低于定义类 0.9597）。
-  原因合理：异常场景的说法与规则原文用词差距大，词面召回吃亏——**这恰是语义检索该补上的地方**，
-  也说明为什么必须跑语义档才能下结论。
-- `citation_top1`（0.59–0.67）明显低于 Recall@5（0.87–0.92）⇒ "能找到但排不到第一"，
-  引用正确率的瓶颈在排序，⛔ 只看 Recall。
-- 能失败：变异组扩到 **34 条**（D5 新增 M17–M22：重排冒充、融合退化、分块丢字、分词退化、枚举手抄、gold 悬空）。
-- 全仓：**171 passed / 2 skipped**（skip 的两条是"装了 numpy / rank_bm25 才跑"的实现比对，**已装就自动核对**）。
+随机基线：**Recall@5 ≈ 0.8333、top1 ≈ 0.1667**（语料只有 6 章）⇒
+**结论要落在 top1 那一列**：`0.7784 → 0.9391`（fixed，hybrid 比 bm25 **+16 个百分点**），
+而 Recall@5 那三行彼此只差 1 个点以内、离瞎猜并不远。
 
-## 复跑语义档（有正常网络时）
+- **最差的一类问题依旧是 `异常处理类`**：语义档里它仍最低（fixed/hybrid 0.9762 vs 流程类 1.00），
+  但比哈希档（0.7857）大幅改善——这正是"异常场景说法与规则原文用词差距大 ⇒ 词面吃亏、
+  语义补得上"的实测证据，也是**为什么结构化问数⛔ 走语义而规则问答该走**（见下一节）。
+- **混合相对单路**：fixed **+0.0027**（Recall）但 top1 **+0.1607**；section **−0.0055**（Recall）
+  但 top1 **+0.1219**。**负数照写**：说明 RRF 在"排序头部"之外的地方并不总提升，
+  也说明⛔ 只报一个指标就下结论。
+- `hybrid+rerank`：**本报告里这一档没有数字**（`skipped`），⛔ 拿 hybrid 的分数冒充重排后的分数。
+  原因分两层，都得说清：① 第一次重跑时**我自己有 bug**——`float(CrossEncoder.predict(...))`
+  对一维数组抛 `only 0-dimensional arrays can be converted to Python scalars`，
+  而它被 `except Exception` 报成"重排器未加载"、进程 rc=0（见踩坑第 7 条）；
+  ② 修好后重跑正在生成 `eval/rag_report_semantic.md`，**跑完之前别把这档当已有结论**。
+  代码侧的保护是故意做成会失败的：`Retriever.search(mode="hybrid+rerank")` 在
+  `reranker is None` 时直接 `raise`（M17 就是把这句 raise 改成"静默返回 hybrid 结果"，
+  改歪必红），所以"忘了加载重排器"⛔ 可能悄悄变成一档假数据。
+
+## MCP 真协议往返（`tools/d5_mcp_smoke.py`，**9/9 通过**）
+
+起**真子进程**跑 `python -m forge.mcp.server`（stdio），用官方客户端连：
+`tools/list == D3 卡片派生`、`inputSchema 参数面与卡片一致`、`metric 枚举由代码派生并随协议下发`、
+三个工具各取到数、非法 metric 被拒且**报文带合法枚举**、协议面返回的数字分子/分母/基准日齐全。
+
+⚠️ 三条**实测出来的接口真相**（都是按记忆写会翻车的地方）：
+1. 本机装的是 **mcp 2.x**：`FastMCP` 已改名 `MCPServer`（`mcp.server.mcpserver`），
+   `Tool` 的字段是 **`input_schema`（snake_case）**，`create_connected_server_and_client_session`
+   也不存在了 ⇒ 按 1.x 写的代码直接 `ModuleNotFoundError`。
+2. **枚举必须写进类型才会随协议下发**：SDK 的 schema 是从函数签名生成的，
+   `metric: str` 出去⛔ 没有 `enum` 字段。改成 `Literal[合法值…]` 之后才有——
+   我第一版把它当成"D3 卡片多带的字段会自动跟过去"，那是假的。
+3. **两条面的拦截层不同，能力有增减**（这才是"等价性"该怎么说的样子）：
+   * 非法枚举值：MCP 面由 **SDK 的 pydantic** 在协议层挡掉（报文里带合法值，宿主仍能自愈），
+     ⛔ 走我们的 `BAD_INTENT` 信封；自研 `--intent` 面才给 `heal:` 结构化自愈信息。
+   * **未知参数：MCP 面被 SDK 静默忽略**，而自研面会 `DROPPED:` 点名 ⇒
+     **这一项自研契约层强于 MCP**，是"MCP 只声明 schema、⛔ 定义非法参数怎么办"的具体证据。
+   * 断言⛔ 写成 schema 里有 `additionalProperties=false`——SDK 根本不生成那个字段
+     （实测顶层只有 `properties/required/title/type`）；断一个不存在的标志等于自欺，
+     改成测行为。
+
+## 怎么复现语义档（含镜像配置）
+
+索引已经写进仓库（⛔ 只存在于某次命令行里）：`uv.toml` 的 `[[index]] aliyun default=true` +
+`[[index]] pytorch-cpu explicit=true`，`pyproject.toml` 的 `[tool.uv.sources]` 把 torch 绑到 CPU 索引；
+`forge/env.py` 用 `setdefault` 语义设 `HF_ENDPOINT=https://hf-mirror.com`（想走官方站就显式覆盖它），
+并把 `HF_HOME/TORCH_HOME/…` 钉在非系统盘，`guard_or_fail()` 会在**下载之前**就失败。
 
 ```bash
-uv sync --extra semantic --extra zh --extra mcp        # torch 走 CPU 索引（配置在 pyproject/uv.toml）
-uv run python -m eval.rag_eval --semantic --rerank     # 首次会下 BGE 到 D 盘
-uv run python tools/d5_mcp_smoke.py                    # 真 MCP 客户端往返，缺包会显式 exit 3
+uv sync --extra semantic --extra zh --extra mcp        # 已验证：PyPI 直连时 numpy 要 15 分钟+
+uv run python -m eval.rag_eval --tag hash              # 管线自检档
+uv run python -m eval.rag_eval --semantic --rerank --tag semantic   # 质量档（BGE + 重排器）
+uv run python tools/d5_mcp_smoke.py                    # 真 MCP 子进程往返，9/9
 ```
 
 ## D5 的依赖分层（⛔ 为了跑测试下 2.5 GB）
@@ -397,3 +464,20 @@ D2 的确定性计算层 + D3 的字典校验。三条理由：
    `JSONDecodeError`——那⛔ 是抖动，而是并发非原子写文件的**另一种真实结局**。
    ⇒ 最终断言改成唯一恒成立的不变量：**事故形状下两条来源标记不可能同时完整**
    （表现为覆盖、丢记录或文件损坏），而修复形状必须永远不出现这三种结局。
+7. **"skipped" 和 "broken" 必须分成两类**（今天最贵的一条）。`try_reranker()` 原本用
+   `except Exception` 兜住一切并返回 `None` ⇒ 我自己写的 `float(ndarray)` bug
+   （`CrossEncoder.predict` 返回数组，实测报
+   `only 0-dimensional arrays can be converted to Python scalars`）被报成
+   "重排器未加载"，**进程 rc=0、报告照样生成**。这就是评测流水线最危险的自欺：
+   评审只要问一句"你怎么确定你的评测没在悄悄跳过东西"，我答不上来。
+   ⇒ 改成：**只有 `ImportError`（依赖真没装）才允许 skip**，
+   模型加载/打分失败一律**炸出来**；顺带把逐对 `predict`（361 题 × 15 候选）改成
+   `rank_batch` 批量，实测批量接口只调 1 次（有专门测试钉住，
+   ⛔ 走回逐对路径会让那条测试失败）。
+8. **变异打在没执行的分支上 = 假牙**：M20 原本改的是 `tokenize_zh` 的**回退分支**，
+   装上 jieba 后那条分支永不执行 ⇒ 改歪仍绿。⇒ 变异要打在**共用入口**上。
+   同类的还有"断言一个不存在的字段"（我断言过 MCP schema 里有
+   `additionalProperties=false`，而 SDK 只生成 `properties/required/title/type`）。
+9. **只钉 HF/torch/uv 会漏掉 tempfile**：实测 jieba 把词典缓存写到
+   `C:\Users\…\Temp\jieba.cache` ⇒ `forge/env.py` 现在连 `TMPDIR/TEMP/TMP` 一起设，
+   并有 `test_temp_dir_is_not_on_the_system_drive` 盯着。

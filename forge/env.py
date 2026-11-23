@@ -23,6 +23,8 @@ DEFAULT_ROOT = "D:/uv"
 MANAGED = "FORGE_CACHE_ROOT"
 
 #: 变量名 → 相对根目录的子路径（⛔ 在这里写绝对路径）
+ENDPOINT_VARS = ("HF_ENDPOINT",)
+
 VARS: dict[str, str] = {
     "HF_HOME": "hf",
     "HUGGINGFACE_HUB_CACHE": "hf/hub",
@@ -30,7 +32,19 @@ VARS: dict[str, str] = {
     "TORCH_HOME": "torch",
     "XDG_CACHE_HOME": "cache",
     "NUMBA_CACHE_DIR": "numba",
+    # ⚠️ 这三个是后补的：只钉 HF/torch/uv 会漏掉**所有走 tempfile.gettempdir() 的库**。
+    #    实测 jieba 把词典缓存写在 `C:\Users\<you>\AppData\Local\Temp\jieba.cache`
+    #    —— 单个文件不大，但"默认落 C 盘"这件事本身就是用户明确禁止的。
+    "TMPDIR": "tmp",
+    "TEMP": "tmp",
+    "TMP": "tmp",
 }
+
+
+#: 模型下载端点。默认走 hf-mirror（国内直连 hf.co 实测慢到不可用：15 MB 的
+#: numpy 都要 15 分钟，几百 MB 的模型更别提），已设过的值⛔ 覆盖，CI 想走官方站
+#: 就显式设 HF_ENDPOINT=https://huggingface.co。
+DEFAULT_HF_ENDPOINT = "https://hf-mirror.com"
 
 
 def root() -> Path:
@@ -51,16 +65,21 @@ def configure_caches(environ: dict[str, str] | None = None) -> dict[str, str]:
         if key not in env:
             env[key] = str((base / sub).as_posix())
         applied[key] = env[key]
+    env.setdefault("HF_ENDPOINT", DEFAULT_HF_ENDPOINT)
+    applied["HF_ENDPOINT"] = env["HF_ENDPOINT"]   # ⚠️ 也要进返回值：⛔ 只写 os.environ 会让调用方读到 None
     env.setdefault(MANAGED, str(base))
     return applied
 
 
 def audit(applied: dict[str, str] | None = None) -> dict[str, dict[str, Any]]:
     """每个缓存变量：路径、⛔ 是否指向系统盘（home 或 C:）、是否存在。"""
-    env = applied or {k: os.environ.get(k, "") for k in VARS}
+    env = applied or {k: os.environ.get(k, "") for k in list(VARS) + list(ENDPOINT_VARS)}
     home = str(Path.home()).lower().replace("\\", "/")
     out: dict[str, dict[str, Any]] = {}
     for key, val in env.items():
+        if key in ENDPOINT_VARS and not str(val).startswith(("c:/", "C:/")):
+            out[key] = {"path": val, "on_system_drive": False, "exists": True}
+            continue
         norm = (val or "").replace("\\", "/").lower()
         p = Path(val) if val else None
         on_home = bool(norm) and (norm.startswith(home) or norm.startswith("c:/users"))

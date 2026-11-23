@@ -1,113 +1,30 @@
 {
- "generated_on": "2026-11-22",
+ "generated_on": "2026-11-23",
  "k": 5,
  "by_strategy": {
   "fixed": {
    "embedder": {
     "chunks": 25,
-    "embedder": "hash-ngram-256",
-    "embedder_is_semantic": false,
-    "bm25_impl": "py-bm25(k1=1.5,b=0.75)",
-    "dense_backend": "python-cosine",
-    "tokenizer": "fallback(汉字单字+二字+latin/num)",
+    "embedder": "BAAI/bge-small-zh-v1.5",
+    "embedder_is_semantic": true,
+    "bm25_impl": "rank_bm25.BM25Okapi",
+    "dense_backend": "faiss",
+    "tokenizer": "jieba",
     "reranker": null
    },
    "modes": {
     "bm25": {
      "n": 361,
-     "recall@5": 0.8698,
-     "citation_top1": 0.5928,
-     "relevance_proxy": 0.4578,
+     "recall@5": 0.9806,
+     "citation_top1": 0.7784,
+     "relevance_proxy": 0.5899,
      "by_class": {
       "定义类": {
-       "recall@5": 0.9597,
+       "recall@5": 0.9839,
        "n": 124
       },
       "异常处理类": {
-       "recall@5": 0.7857,
-       "n": 168
-      },
-      "流程类": {
-       "recall@5": 0.913,
-       "n": 69
-      }
-     },
-     "worst_class": "异常处理类"
-    },
-    "dense": {
-     "n": 361,
-     "recall@5": 0.8006,
-     "citation_top1": 0.6233,
-     "relevance_proxy": 0.4084,
-     "by_class": {
-      "定义类": {
-       "recall@5": 0.8065,
-       "n": 124
-      },
-      "异常处理类": {
-       "recall@5": 0.8155,
-       "n": 168
-      },
-      "流程类": {
-       "recall@5": 0.7536,
-       "n": 69
-      }
-     },
-     "worst_class": "流程类"
-    },
-    "hybrid": {
-     "n": 361,
-     "recall@5": 0.8781,
-     "citation_top1": 0.6704,
-     "relevance_proxy": 0.4459,
-     "by_class": {
-      "定义类": {
-       "recall@5": 0.879,
-       "n": 124
-      },
-      "异常处理类": {
-       "recall@5": 0.8512,
-       "n": 168
-      },
-      "流程类": {
-       "recall@5": 0.942,
-       "n": 69
-      }
-     },
-     "worst_class": "异常处理类"
-    },
-    "hybrid+rerank": {
-     "skipped": "重排器未加载（离线默认不下载模型）"
-    }
-   },
-   "hybrid_gain": {
-    "vs_best_single": 0.0083,
-    "note": "负数也照实写：混合不如单路说明这一档融合参数不合适。"
-   }
-  },
-  "section": {
-   "embedder": {
-    "chunks": 15,
-    "embedder": "hash-ngram-256",
-    "embedder_is_semantic": false,
-    "bm25_impl": "py-bm25(k1=1.5,b=0.75)",
-    "dense_backend": "python-cosine",
-    "tokenizer": "fallback(汉字单字+二字+latin/num)",
-    "reranker": null
-   },
-   "modes": {
-    "bm25": {
-     "n": 361,
-     "recall@5": 0.9197,
-     "citation_top1": 0.5983,
-     "relevance_proxy": 0.4639,
-     "by_class": {
-      "定义类": {
-       "recall@5": 0.9355,
-       "n": 124
-      },
-      "异常处理类": {
-       "recall@5": 0.875,
+       "recall@5": 0.9702,
        "n": 168
       },
       "流程类": {
@@ -119,41 +36,41 @@
     },
     "dense": {
      "n": 361,
-     "recall@5": 0.831,
-     "citation_top1": 0.5817,
-     "relevance_proxy": 0.4013,
+     "recall@5": 0.9834,
+     "citation_top1": 0.8504,
+     "relevance_proxy": 0.6266,
      "by_class": {
       "定义类": {
-       "recall@5": 0.8306,
+       "recall@5": 1.0,
        "n": 124
       },
       "异常处理类": {
-       "recall@5": 0.8869,
+       "recall@5": 0.9702,
        "n": 168
       },
       "流程类": {
-       "recall@5": 0.6957,
+       "recall@5": 0.9855,
        "n": 69
       }
      },
-     "worst_class": "流程类"
+     "worst_class": "异常处理类"
     },
     "hybrid": {
      "n": 361,
-     "recall@5": 0.8975,
-     "citation_top1": 0.6177,
-     "relevance_proxy": 0.4448,
+     "recall@5": 0.9861,
+     "citation_top1": 0.9391,
+     "relevance_proxy": 0.6189,
      "by_class": {
       "定义类": {
-       "recall@5": 0.9194,
+       "recall@5": 0.9919,
        "n": 124
       },
       "异常处理类": {
-       "recall@5": 0.869,
+       "recall@5": 0.9762,
        "n": 168
       },
       "流程类": {
-       "recall@5": 0.9275,
+       "recall@5": 1.0,
        "n": 69
       }
      },
@@ -164,18 +81,101 @@
     }
    },
    "hybrid_gain": {
-    "vs_best_single": -0.0222,
+    "vs_best_single": 0.0027,
+    "note": "负数也照实写：混合不如单路说明这一档融合参数不合适。"
+   }
+  },
+  "section": {
+   "embedder": {
+    "chunks": 15,
+    "embedder": "BAAI/bge-small-zh-v1.5",
+    "embedder_is_semantic": true,
+    "bm25_impl": "rank_bm25.BM25Okapi",
+    "dense_backend": "faiss",
+    "tokenizer": "jieba",
+    "reranker": null
+   },
+   "modes": {
+    "bm25": {
+     "n": 361,
+     "recall@5": 0.9751,
+     "citation_top1": 0.7895,
+     "relevance_proxy": 0.5855,
+     "by_class": {
+      "定义类": {
+       "recall@5": 0.9839,
+       "n": 124
+      },
+      "异常处理类": {
+       "recall@5": 0.9583,
+       "n": 168
+      },
+      "流程类": {
+       "recall@5": 1.0,
+       "n": 69
+      }
+     },
+     "worst_class": "异常处理类"
+    },
+    "dense": {
+     "n": 361,
+     "recall@5": 0.9972,
+     "citation_top1": 0.8338,
+     "relevance_proxy": 0.6191,
+     "by_class": {
+      "定义类": {
+       "recall@5": 0.9919,
+       "n": 124
+      },
+      "异常处理类": {
+       "recall@5": 1.0,
+       "n": 168
+      },
+      "流程类": {
+       "recall@5": 1.0,
+       "n": 69
+      }
+     },
+     "worst_class": "定义类"
+    },
+    "hybrid": {
+     "n": 361,
+     "recall@5": 0.9917,
+     "citation_top1": 0.9114,
+     "relevance_proxy": 0.6096,
+     "by_class": {
+      "定义类": {
+       "recall@5": 0.9919,
+       "n": 124
+      },
+      "异常处理类": {
+       "recall@5": 0.9881,
+       "n": 168
+      },
+      "流程类": {
+       "recall@5": 1.0,
+       "n": 69
+      }
+     },
+     "worst_class": "异常处理类"
+    },
+    "hybrid+rerank": {
+     "skipped": "重排器未加载（离线默认不下载模型）"
+    }
+   },
+   "hybrid_gain": {
+    "vs_best_single": -0.0055,
     "note": "负数也照实写：混合不如单路说明这一档融合参数不合适。"
    }
   }
  },
  "embedder": {
   "chunks": 25,
-  "embedder": "hash-ngram-256",
-  "embedder_is_semantic": false,
-  "bm25_impl": "py-bm25(k1=1.5,b=0.75)",
-  "dense_backend": "python-cosine",
-  "tokenizer": "fallback(汉字单字+二字+latin/num)",
+  "embedder": "BAAI/bge-small-zh-v1.5",
+  "embedder_is_semantic": true,
+  "bm25_impl": "rank_bm25.BM25Okapi",
+  "dense_backend": "faiss",
+  "tokenizer": "jieba",
   "reranker": null
  }
 }

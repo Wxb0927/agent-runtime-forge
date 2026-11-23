@@ -181,9 +181,11 @@ MUTATIONS_D5: list[tuple[str, str, str, str, str]] = [
      '        pieces = [full[i:i + size] for i in range(0, len(full), size * 2)]',
      'test_fixed_chunks_overlap_never_loses_text'),
     ('M20 分词退化：整句当一个词（BM25 再也匹配不上术语）',
+     # ⚠️ 变异必须打在**共用路径**上：第一版打的是 fallback 分支里的 `out: list[str] = []`，
+     #    装上 jieba 后那条分支根本不执行 ⇒ 改歪仍绿，是"假有牙"而不是代码没问题。
      'forge/rag/retrieve.py',
-     '    out: list[str] = []',
-     '        return [text]',
+     '    """jieba 分词；没装就退回「汉字单字 + 相邻二字 + 拉丁/数字」，⛔ 整段当一个词。"""',
+     '    return [text]',
      'test_bm25_finds_the_exact_term'),
     ('M21 MCP 的合法枚举手抄一份（与 D3 卡片分叉）',
      'forge/mcp/manifest.py',

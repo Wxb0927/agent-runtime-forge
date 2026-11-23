@@ -98,7 +98,12 @@ class BGEEmbedder:
             from sentence_transformers import SentenceTransformer
 
             self._m = SentenceTransformer(self.model_name)
-            self.dim = int(self._m.get_sentence_embedding_dimension())
+            # 新版 sentence-transformers 把 get_sentence_embedding_dimension 改名了
+            # （实测 FutureWarning）⇒ 两个名字都兼容，⛔ 锁死某一个版本
+            getter = getattr(self._m, "get_embedding_dimension", None)
+            if getter is None:
+                getter = self._m.get_sentence_embedding_dimension
+            self.dim = int(getter())
         return self._m
 
     def encode(self, texts: Sequence[str]) -> list[list[float]]:
@@ -274,8 +279,13 @@ class Retriever:
             # ⛔ 假装重排过：没有 reranker 就整档失败，
             #    否则报告里的 "hybrid+rerank" 其实是 hybrid 的成绩
             raise RuntimeError("mode=hybrid+rerank 需要 reranker；本次未加载")
-        scored = sorted(((self.reranker.score(query, h.chunk.text), h) for h in pool[:k * 3]),
-                        key=lambda x: -x[0])
+        cand = pool[:k * 3]
+        # 有批量接口就用批量（实测单对 predict 1.6 万次能把评测拖成分钟级）
+        if hasattr(self.reranker, "rank_batch"):
+            scores = self.reranker.rank_batch(query, [h.chunk.text for h in cand])
+        else:
+            scores = [self.reranker.score(query, h.chunk.text) for h in cand]
+        scored = sorted(zip(scores, cand), key=lambda x: -x[0])
         return [Hit(h.chunk, s, h.via + ["rerank"]) for s, h in scored[:k]]
 
     def describe(self) -> dict[str, Any]:

@@ -102,3 +102,14 @@ def test_no_legacy_hardware_names_in_state_keys() -> None:
     from forge.graph.state import BRANCH_SOURCE
 
     assert set(BRANCH_SOURCE.values()) == {"task_table", "milestone_table", "cost_docs"}
+
+def test_temp_dir_is_not_on_the_system_drive() -> None:
+    """HF/torch/uv 之外，任何走 tempfile.gettempdir() 的库也会写 C 盘（实测 jieba）。"""
+    from forge import env
+
+    applied = env.configure_caches({})
+    home = str(Path.home()).lower()
+    for key in ('TMPDIR', 'TEMP', 'TMP'):
+        val = applied[key].lower().replace(chr(92), '/')
+        assert not val.startswith(home.lower().replace(chr(92), '/')), (key, val)
+        assert not val.startswith('c:/users'), (key, val)
