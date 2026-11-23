@@ -116,33 +116,51 @@ class BGEEmbedder:
 
 
 class PyBM25:
-    """Okapi BM25 纯 python 实现（rank_bm25 装不上时用）。k1/b 显式写出，⛔ 藏在库里。"""
+    """Okapi BM25 的纯 python 实现，**与 rank_bm25 同参数同公式**（等价性有测试钉住）。
 
-    name = "py-bm25(k1=1.5,b=0.75)"
+    为什么自带一份：这台机器写这份代码时网络慢到 15 MB 的 numpy 都要 15 分钟，
+    检索线⛔ 该被一个下载卡死。代价是多一份实现 ⇒ 所以：
+    ① k1/b **显式写出**（实测库默认是 k1=1.5,b=0.75；我第一版凭记忆写 1.2，反而制造了分叉 ⇒ 默认值也要查，⛔ 背）；
+    ② idf 负值走库同样的 epsilon 兜底（df 超过一半时 log 会变负，
+       库把它替换成 `epsilon * avg_idf`，我第一版⛔ 处理这一条，
+       于是"两份实现等价"其实是运气——fresh-clone 验证把它抓了出来）。
+    """
+
+    name = "py-bm25(k1=1.5,b=0.75,eps=0.25)"
 
     def __init__(self, corpus_tokens: Sequence[Sequence[str]], k1: float = 1.5,
-                 b: float = 0.75) -> None:
-        self.k1, self.b = k1, b
+                 b: float = 0.75, epsilon: float = 0.25) -> None:
+        self.k1, self.b, self.epsilon = k1, b, epsilon
         self.docs = [Counter(t) for t in corpus_tokens]
-        self.lengths = [sum(c.values()) for c in self.docs]
-        n = len(self.docs) or 1
-        self.avgdl = sum(self.lengths) / n
+        self.doc_len = [sum(c.values()) for c in self.docs]
+        n_docs = len(self.docs) or 1
+        self.avgdl = (sum(self.doc_len) / n_docs) or 1.0
+
         df: Counter = Counter()
         for c in self.docs:
-            df.update(c)
-        self.idf = {t: math.log(1.0 + (n - d + 0.5) / (d + 0.5)) for t, d in df.items()}
+            df.update(set(c))   # ⚠️ 文档频次（该词出现在几篇里），⛔ 词频累加
+        #    第一版写成 df.update(c)，词频会让 df 超过 N ⇒ log(N-df+0.5) 进负数域直接炸
+        idf: dict[str, float] = {}
+        for term, freq in df.items():
+            idf[term] = math.log(n_docs - freq + 0.5) - math.log(freq + 0.5)
+        positive = [v for v in idf.values() if v > 0]
+        avg_idf = (sum(positive) / len(positive)) if positive else 1.0
+        for term, v in list(idf.items()):
+            if v <= 0:
+                idf[term] = self.epsilon * avg_idf
+        self.idf = idf
 
     def scores(self, query: Sequence[str]) -> list[float]:
         out = [0.0] * len(self.docs)
-        for t in set(query):
-            idf = self.idf.get(t)
-            if not idf:
+        for term in query:
+            idf = self.idf.get(term)
+            if idf is None:
                 continue
             for i, doc in enumerate(self.docs):
-                f = doc.get(t, 0)
+                f = doc.get(term, 0)
                 if not f:
                     continue
-                denom = f + self.k1 * (1 - self.b + self.b * self.lengths[i] / (self.avgdl or 1.0))
+                denom = f + self.k1 * (1 - self.b + self.b * self.doc_len[i] / self.avgdl)
                 out[i] += idf * f * (self.k1 + 1.0) / denom
         return out
 
@@ -150,10 +168,12 @@ class PyBM25:
 class RankBm25Adapter:
     name = "rank_bm25.BM25Okapi"
 
-    def __init__(self, corpus_tokens: Sequence[Sequence[str]]) -> None:
+    def __init__(self, corpus_tokens: Sequence[Sequence[str]], k1: float = 1.5,
+                 b: float = 0.75, epsilon: float = 0.25) -> None:
         from rank_bm25 import BM25Okapi
 
-        self._bm = BM25Okapi([list(t) for t in corpus_tokens])
+        # 参数**显式传两边**，⛔ 依赖库默认值哪天变了
+        self._bm = BM25Okapi([list(t) for t in corpus_tokens], k1=k1, b=b, epsilon=epsilon)
 
     def scores(self, query: Sequence[str]) -> list[float]:
         return [float(x) for x in self._bm.get_scores(list(query))]

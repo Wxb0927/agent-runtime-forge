@@ -122,9 +122,14 @@ def test_pure_python_bm25_agrees_with_rank_bm25(chunks) -> None:
         pytest.skip('本机未装 rank_bm25（网络原因）；纯 python 版单独可用')
     theirs = RankBm25Adapter(toks)
     q = tk('合同关联稀疏能不能反查金额')
-    top_mine = sorted(range(len(cs)), key=lambda i: -mine.scores(q)[i])[:3]
-    top_theirs = sorted(range(len(cs)), key=lambda i: -theirs.scores(q)[i])[:3]
+    sm, st = mine.scores(q), theirs.scores(q)
+    top_mine = sorted(range(len(cs)), key=lambda i: -sm[i])[:3]
+    top_theirs = sorted(range(len(cs)), key=lambda i: -st[i])[:3]
     assert top_mine == top_theirs, (top_mine, top_theirs)
+    # 只比顺序太松（换个 k1 也可能顺序刚好相同）⇒ 连分值一起比，
+    # 两边必须**同式**而⛔ 同运气
+    worst = max(abs(a - b) for a, b in zip(sm, st))
+    assert worst < 1e-9, f"两份 BM25 分值不一致，最大差 {worst:.6f}（公式或参数分叉了）"
 
 
 def _fake_hits(cs, scores):
