@@ -239,7 +239,35 @@ MUTATIONS_D6: list[tuple[str, str, str, str, str]] = [
      'test_stub_stream_admits_it_is_not_tokens'),
 ]
 
-ALL_MUTATIONS = MUTATIONS + MUTATIONS_D2 + MUTATIONS_D3 + MUTATIONS_D4 + MUTATIONS_D5 + MUTATIONS_D6 + MUTATIONS_D4
+# --------------------------------------------------------------------------
+# D7 组：发布形态（控制台编码兜底 / 许可证声明与产物同源 / 论域=git 跟踪文件）
+# --------------------------------------------------------------------------
+
+MUTATIONS_D7: list[tuple[str, str, str, str, str]] = [
+    ('M29 删掉 UTF-8 stdout 兜底（cp936 控制台下崩在"报告结果"那一步）',
+     'forge/cli.py',
+     '        sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")',
+     '        pass  # 变异：兜底被删',
+     'test_intent_bad_envelope_keeps_the_exit_code_the_readme_promises'),
+]
+
+# ⚠️ 分组清单是**唯一真源**：总数、分组标签、明细串全部从 GROUPS 派生。
+#    2026-11-24 发布复验时这里出过一次真事故：`ALL_MUTATIONS = ... + MUTATIONS_D4`
+#    写了两遍 ⇒ 对外报的"40 条"实际只有 **34 条**，而且索引式分组标签把那 6 条重复项
+#    **标成了 D6**（README/简历上的"40/40 变异"就是被这一行撑起来的）。
+#    ⇒ 同一个项目早在 D2 就记过"汇总计数报错数比没测更糟"，这次是它自己又犯了一遍。
+GROUPS: list[tuple[str, list[tuple[str, ...]]]] = [
+    ("D1", MUTATIONS), ("D2", MUTATIONS_D2), ("D3", MUTATIONS_D3), ("D4", MUTATIONS_D4),
+    ("D5", MUTATIONS_D5), ("D6", MUTATIONS_D6), ("D7", MUTATIONS_D7),
+]
+ALL_MUTATIONS: list[tuple[str, ...]] = [m for _, ms in GROUPS for m in ms]
+GROUP_OF: dict[str, str] = {m[0]: g for g, ms in GROUPS for m in ms}
+
+_names = [m[0] for m in ALL_MUTATIONS]
+_dup = sorted({n for n in _names if _names.count(n) > 1})
+assert not _dup, f"变异清单有重复条目 ⇒ 对外总数被虚高：{_dup}"
+assert len(_names) == len(set(_names)), "变异名不唯一"
+assert sum(len(ms) for _, ms in GROUPS) == len(ALL_MUTATIONS), "分组明细与总数不等"
 
 
 def run_pytest(k: str) -> int:
@@ -258,11 +286,8 @@ def main(argv: list[str] | None = None) -> int:
         print("没有变异匹配这些关键字：", " ".join(wanted))
         return 1
     for i, (name, rel, old, new, test_id) in selected:
-        n1, n2, n3, n4, n5 = (len(MUTATIONS), len(MUTATIONS_D2), len(MUTATIONS_D3),
-                              len(MUTATIONS_D4), len(MUTATIONS_D5))
-        group = ("D1" if i < n1 else "D2" if i < n1 + n2 else "D3" if i < n1 + n2 + n3
-                 else "D4" if i < n1 + n2 + n3 + n4 else "D5" if i < n1 + n2 + n3 + n4 + n5
-                 else "D6")
+        group = GROUP_OF.get(name, "?")   # 分组标签**从清单派生**（原先按索引区间算，
+        #    重复条目会把它算歪：D4 的 6 条被标成 D6，报告读起来像"D6 有 12 条"）
         path = ROOT / rel
         # ⚠️ 必须**按字节**备份再还原：文本模式写文件在 Windows 上会把换行
         #    翻译成 CRLF，"还原原样"于是悄悄改了全文件行尾
@@ -285,10 +310,9 @@ def main(argv: list[str] | None = None) -> int:
         if not ok:
             failures.append(name)
     print()
-    print("能失败检查: %d/%d 通过（本仓库共 %d 条：D1 %d + D2 %d + D3 %d + D4 %d + D5 %d + D6 %d）"
-          % (len(selected) - len(failures), len(selected), len(ALL_MUTATIONS),
-             len(MUTATIONS), len(MUTATIONS_D2), len(MUTATIONS_D3), len(MUTATIONS_D4),
-             len(MUTATIONS_D5), len(MUTATIONS_D6)))
+    detail = " + ".join(f"{g} {len(ms)}" for g, ms in GROUPS)
+    print("能失败检查: %d/%d 通过（本仓库共 %d 条：%s）"
+          % (len(selected) - len(failures), len(selected), len(ALL_MUTATIONS), detail))
     if wanted:
         print("   （已按关键字过滤：%s）" % " ".join(wanted))
     return 1 if failures else 0

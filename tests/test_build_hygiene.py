@@ -61,3 +61,26 @@ def test_license_claim_and_artifact_cannot_diverge() -> None:
     claimed = proj.get("project", {}).get("license")
     assert claimed in (None, "MIT", {"spdx_id": "MIT"}), (
         f"pyproject 的 license={claimed!r} 与 LICENSE(MIT) 不一致")
+
+
+def test_mutation_inventory_total_is_derived_not_hand_summed() -> None:
+    """对外报的"变异 N 条"必须由分组清单派生，⛔ 手拼列表。
+
+    2026-11-24 发布复验的真事故：`ALL_MUTATIONS = ... + MUTATIONS_D4` 写了两遍
+    ⇒ README 与简历上的 **40/40 其实是 34 条**（D4 那 6 条跑了两遍，
+    还被索引式分组标签标成 D6）。检查"汇总数会不会说谎"的工具自己说了谎，
+    而且说的还是**最容易被引用成简历数字**的那一句。
+    ⇒ mutation_check 里已有三条 import 期断言，这里是**pytest 侧的门禁**：
+      断言只长在跑工具的脑子里，没人跑工具时它就⛔ 存在。
+    """
+    import sys
+    from pathlib import Path
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+    import mutation_check as MC
+
+    names = [m[0] for m in MC.ALL_MUTATIONS]
+    assert len(names) == len(set(names)), f"变异条目重复 ⇒ 总数虚高：{len(names)} vs {len(set(names))}"
+    assert len(names) == sum(len(ms) for _, ms in MC.GROUPS), "分组明细之和 != 总数"
+    assert set(MC.GROUP_OF) == set(names), "分组标签表与清单不同步"
+    assert len(names) >= 30, f"只数出 {len(names)} 条 ⇒ 扫描/清单本身坏了（控制组）"

@@ -62,8 +62,8 @@ flowchart LR
 
 | 指标 | 值 | 出处 |
 |---|---|---|
-| 测试 | **198 passed** | `uv run pytest` |
-| 能失败变异 | **40/40**（D1 5+D2 6+D3 5+D4 6+D5 6+D6 6） | `uv run python tools/mutation_check.py` |
+| 测试 | **199 passed** | `uv run pytest` |
+| 能失败变异 | **35/35**（D1 5 + D2 6 + D3 5 + D4 6 + D5 6 + D6 6 + D7 1） | `uv run python tools/mutation_check.py` |
 | 并行竞态压测 | 同 thread 20 次 + 20 thread 并发 ⇒ **0 次字段覆盖** | `tests/test_graph_channels_race.py` |
 | 覆盖率矩阵 | **80 格**（10 域 × 8 问法）· 命中率 1.0（⚠️ 结构性偏高，见 caveat） | `eval/report.md` |
 | RAG 质量（语义档） | top1 引用正确率 **0.5443 → 0.6055**（bm25→dense）；Recall@5 0.7156→0.7554 | `eval/rag_report_semantic.md` |
@@ -137,7 +137,7 @@ MCP 面把未知参数**静默忽略**，自研 `--intent` 面会 `DROPPED:` 点
 uv sync                                                  # 装依赖（Python 3.11+）
 uv run python -m forge.synth.generate --seed 42          # 生成合成数据到 data/
 uv run pytest -q                                         # 全部测试
-uv run python tools/mutation_check.py                    # 证明测试"能失败"（40 条，见顶部指标总表）
+uv run python tools/mutation_check.py                    # 证明测试"能失败"（35 条，见顶部指标总表）
 uv run python tools/d2_api_probe.py                      # 框架语义实测读数（⛔ 凭记忆）
 
 # D2 三条编排线跑同一个问句
@@ -648,8 +648,8 @@ Postgres 里确实落了 trace、下游故障仍是 **200 + 合法信封**、`/h
 | P99 长尾 | 472.7 ms 照实留着——来自首批冷启动请求（数据集构建与 JIT），⛔ 抹平后再报 |
 | trace 内容 | `steps=5`（只问进度）/ `steps=7`（三分支全跑），`tool_sequence=router→guard→stats→fanin→aggregate`，`degraded=false` |
 | 降级演练（curl，`faults=cost:perm`） | HTTP 200 + `code=DEGRADED` + `【降级】cost：下游取数失败（尝试 3 次后降级），本次未计入`，其余分支数据保留 |
-| 能失败 | 变异组 **40 条**（D6 新增 M23–M28：降级不点名 / 全挂报成功 / **图跑两遍** / 步数漏记 / 空样本编 P95 / 打桩冒充 token） |
-| 全仓测试 | `pytest` **198 passed**；D6 新增 `tests/test_server_api.py` 15 条 + `test_build_hygiene.py` 3 条（第 3 条是发布时补的：LICENSE 与 README 的许可证声明⛔ 分叉）；发布复验又补 `test_cli_encoding.py` 4 条与 `test_d2_hygiene.py` 1 条（见文末「发布复验抓到的两个缺陷」） |
+| 能失败 | D6 组新增 **6 条**（M23–M28：降级不点名 / 全挂报成功 / **图跑两遍** / 步数漏记 / 空样本编 P95 / 打桩冒充 token）。⚠️ 当时这里写的"变异组 40 条"是**虚高**，真数 34——成因见文末「发布复验抓到的三个缺陷」第 ③ 条 |
+| 全仓测试 | `pytest` **199 passed**；D6 新增 `tests/test_server_api.py` 15 条 + `test_build_hygiene.py` 3 条（第 3 条是发布时补的：LICENSE 与 README 的许可证声明⛔ 分叉）；发布复验又补 `test_cli_encoding.py` 4 条、`test_d2_hygiene.py` 1 条、`test_build_hygiene.py` 1 条（见文末） |
 
 ⚠️ **两个"步数"是不同口径，⛔ 说串**：`trace.steps` 是**图节点数**（router/guard/分支/fanin/aggregate）；
 简历里"首问 17 步 → 4 步"是**工具调用步数**。面试时如果指着 trace 说"看我 7 步"，
@@ -671,7 +671,7 @@ Postgres 里确实落了 trace、下游故障仍是 **200 + 合法信封**、`/h
    ⛔ 两处各写一遍必然分叉。
 7. **`docker info` 为空却差点把"一键运行"写成已验证** ⇒ 现在 smoke 脚本没 Docker 就 exit 3。
 
-## 发布复验抓到的两个缺陷（2026-11-24，⛔ 本机测试全绿时已经存在）
+## 发布复验抓到的三个缺陷（2026-11-24，⛔ 本机测试全绿时已经存在）
 
 推上远端后我从**另一个目录重新 clone** 再跑了一遍，抓到两个本机永远看不到的真缺陷。
 共同点：**都不是逻辑错，是"发布形态"错**——本机有那个目录、那个 shell、那个 locale，所以一切正常。
@@ -697,6 +697,20 @@ Postgres 里确实落了 trace、下游故障仍是 **200 + 合法信封**、`/h
    **坦白一条**：`git rm` 只清工作树，**历史 blob 仍在**（`git show 7a89c69:.tmp_rerank2.log` 可取回）。
    要不要用 `filter-repo` 重写、把 22 个 commit 的哈希全换掉，是**取舍**：重写的代价是本仓库与配套文档里
    引用的每一个 commit 哈希当场作废（那些哈希是我留的证据链）。当前选择：⛔ 重写，留痕 + 说清楚。
+3. **对外报的"变异 40/40"是虚高的，真数 34**——`tools/mutation_check.py` 里
+   `ALL_MUTATIONS = MUTATIONS + … + MUTATIONS_D6 + MUTATIONS_D4` **最后那段手拼把 D4 又加了一遍**。
+   后果不只是数字难看：那 6 条 D4 变异**被跑了两遍**（浪费两倍时间、还给人"D6 覆盖面很厚"的错觉），
+   而分组标签是按**下标区间**算的 ⇒ 重复的那 6 条被标成 `[D6]`，运行日志读起来像"D6 有 12 条"。
+   ⚠️ 最难受的是这条**恰好是本项目反复立规矩的那一类**：D2 就记过"汇总只报 5/5 而实际跑了 11 条，
+   一个'证明测试能失败'的工具自己报出错数，比没测更糟"——这次是同一个错误换了个方向复发，
+   而且说的是**最容易被引用成简历数字**的那一句（README 与简历都写了 40/40）。
+   修法三条，方向都是"⛔ 我数，让清单自己数"：
+   ① 分组清单收成唯一的 `GROUPS`，`ALL_MUTATIONS`/`GROUP_OF`/明细串全部由它派生（⛔ 下标区间、⛔ 手拼）；
+   ② `import` 期断言"名字唯一 + 明细之和 == 总数"（重复立刻炸，⛔ 等到有人去数）；
+   ③ `tests/test_build_hygiene.py::test_mutation_inventory_total_is_derived_not_hand_summed` 在 **pytest 侧**再钉一遍
+      ——断言只长在工具的 import 里，没人跑工具时它就⛔ 存在。
+   能失败实测：把 D4 再拼一遍（还原当年那个 bug 的形状）⇒ 该用例 **红**；还原 ⇒ **4 passed**。
+   顺带把 D7 组立起来（`M29` 删掉 UTF-8 兜底 ⇒ `test_intent_...` 必红），于是总数 **35**（34 + 1）。
 
 ## 许可证与数据来源
 
