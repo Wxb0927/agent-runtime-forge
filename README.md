@@ -62,7 +62,7 @@ flowchart LR
 
 | 指标 | 值 | 出处 |
 |---|---|---|
-| 测试 | **193 passed** | `uv run pytest` |
+| 测试 | **198 passed** | `uv run pytest` |
 | 能失败变异 | **40/40**（D1 5+D2 6+D3 5+D4 6+D5 6+D6 6） | `uv run python tools/mutation_check.py` |
 | 并行竞态压测 | 同 thread 20 次 + 20 thread 并发 ⇒ **0 次字段覆盖** | `tests/test_graph_channels_race.py` |
 | 覆盖率矩阵 | **80 格**（10 域 × 8 问法）· 命中率 1.0（⚠️ 结构性偏高，见 caveat） | `eval/report.md` |
@@ -379,7 +379,7 @@ uv run python tools/intake_host.py --scratch .tmp/demo --thread t1 --continue
 | judge 模式 | 默认 `mode=rule`、`llm=skipped`，未评项显式列出；`--live-judge` 才走真模型 |
 | 评测器自证 | `tests/test_eval_pipeline.py` **23 条**（喂构造坏样本：假信封 / 假 judge / 假基线；⛔ 改磁盘源码） |
 | 能失败 | 全量复跑 **28/28 通过**（D1 5 + D2 6 + D3 5 + D4 6），每条改歪 rc=1 / 改回 rc=0，跑完工作区无残留 |
-| 全仓回归 | `pytest` **153 passed**（D4 当时的读数；现 193，见顶部指标总表） |
+| 全仓回归 | `pytest` **153 passed**（D4 当时的读数；现 198，见顶部指标总表） |
 
 ## D4 的两处取舍（⛔ 藏着）
 
@@ -649,7 +649,7 @@ Postgres 里确实落了 trace、下游故障仍是 **200 + 合法信封**、`/h
 | trace 内容 | `steps=5`（只问进度）/ `steps=7`（三分支全跑），`tool_sequence=router→guard→stats→fanin→aggregate`，`degraded=false` |
 | 降级演练（curl，`faults=cost:perm`） | HTTP 200 + `code=DEGRADED` + `【降级】cost：下游取数失败（尝试 3 次后降级），本次未计入`，其余分支数据保留 |
 | 能失败 | 变异组 **40 条**（D6 新增 M23–M28：降级不点名 / 全挂报成功 / **图跑两遍** / 步数漏记 / 空样本编 P95 / 打桩冒充 token） |
-| 全仓测试 | `pytest` **193 passed**；D6 新增 `tests/test_server_api.py` 15 条 + `test_build_hygiene.py` 3 条（第 3 条是发布时补的：LICENSE 与 README 的许可证声明⛔ 分叉） |
+| 全仓测试 | `pytest` **198 passed**；D6 新增 `tests/test_server_api.py` 15 条 + `test_build_hygiene.py` 3 条（第 3 条是发布时补的：LICENSE 与 README 的许可证声明⛔ 分叉）；发布复验又补 `test_cli_encoding.py` 4 条与 `test_d2_hygiene.py` 1 条（见文末「发布复验抓到的两个缺陷」） |
 
 ⚠️ **两个"步数"是不同口径，⛔ 说串**：`trace.steps` 是**图节点数**（router/guard/分支/fanin/aggregate）；
 简历里"首问 17 步 → 4 步"是**工具调用步数**。面试时如果指着 trace 说"看我 7 步"，
@@ -670,6 +670,33 @@ Postgres 里确实落了 trace、下游故障仍是 **200 + 合法信封**、`/h
    改成 `${FORGE_PG_PASSWORD:-forge-dev-only}` 并让 app 侧与 postgres 侧共用同一个来源，
    ⛔ 两处各写一遍必然分叉。
 7. **`docker info` 为空却差点把"一键运行"写成已验证** ⇒ 现在 smoke 脚本没 Docker 就 exit 3。
+
+## 发布复验抓到的两个缺陷（2026-11-24，⛔ 本机测试全绿时已经存在）
+
+推上远端后我从**另一个目录重新 clone** 再跑了一遍，抓到两个本机永远看不到的真缺陷。
+共同点：**都不是逻辑错，是"发布形态"错**——本机有那个目录、那个 shell、那个 locale，所以一切正常。
+
+1. **中文 Windows 控制台下报告会崩，且把我承诺的退出码改掉**。
+   控制台默认代码页 cp936，`print()` 到 ⛔/✅ 这类字符直接 `UnicodeEncodeError` ⇒
+   `--intent` 崩在"打印信封"那一步，退出码从 README 写的 **2 变成 1**（栈取代了结论）。
+   `tools/mutation_check.py` 早就单独打过这个补丁，但只有它一处——**同一个坑我只补了一个入口**。
+   修法：所有 `__main__` 入口统一 `sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")`，
+   并由 `tests/test_cli_encoding.py` 钉住：① 控制组先证明子进程真的落在 GBK（⛔ 这条省了，
+   后面两条会在 UTF-8 环境里双双空过＝假绿）；② `--describe` rc=0 且可 JSON 解析、`--intent` rc=2；
+   ③ 入口清单由 **`git ls-files` + AST** 派生（第一版用 `rglob`，结果扫到一个已提交的坏语法垃圾脚本，
+   报的是垃圾⛔ 是缺陷）。实测：删掉一处兜底 ⇒ **3 failed**；还原 ⇒ **4 passed**。
+2. **三个一次性产物被 `git add -A` 捎进了提交，并且已经推出去了**：
+   `.tmp_lat_fix.py`（shell 转义事故的产物，中文全乱码、语法还坏）、`.tmp_rerank2.log`、`.tmp_rr3.log`。
+   后者里有一行真实用户目录路径 `C:\Users\<我的数字账号>\AppData\Local\Temp\jieba.cache`
+   ⇒ **机器指纹**，而且正好是本 README「缓存⛔ 写系统盘」那段的反证（jieba 那条是后来才补的）。
+   ⚠️ 原来的脱敏扫描抓不到它：**论域是手抄的后缀白名单**（.py/.md/.toml/.json/.txt），`.log` 整个不在里面。
+   修法：`git rm` 三个文件 + `.gitignore` 补 `.tmp_*` 与 `*.log`（⚠️ `.tmp/*` 只挡目录，
+   挡不住仓库根上以 `.tmp` 开头的文件——这就是当初漏进去的原因），
+   再加一条断言：论域换成 **`git ls-files` 的事实集合**，用户名那一段用"像账号的形状"正向匹配
+   （`<you>` / `…` / `%USERNAME%` 首字符就落在字符类外 ⇒ 天然放过，⛔ 再维护合法占位符名单）。
+   **坦白一条**：`git rm` 只清工作树，**历史 blob 仍在**（`git show 7a89c69:.tmp_rerank2.log` 可取回）。
+   要不要用 `filter-repo` 重写、把 22 个 commit 的哈希全换掉，是**取舍**：重写的代价是本仓库与配套文档里
+   引用的每一个 commit 哈希当场作废（那些哈希是我留的证据链）。当前选择：⛔ 重写，留痕 + 说清楚。
 
 ## 许可证与数据来源
 

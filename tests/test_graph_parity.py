@@ -109,4 +109,7 @@ def dump_for_readme(tmp_path: Path = Path(".tmp/parity")) -> dict:
 
 
 if __name__ == "__main__":  # pragma: no cover
+    import sys
+    if hasattr(sys.stdout, "reconfigure"):   # 中文 Windows 控制台默认 cp936：
+        sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")   # 打 ⛔/✅ 会 UnicodeEncodeError
     print(json.dumps(dump_for_readme(), ensure_ascii=False, indent=1, default=str))

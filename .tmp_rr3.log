@@ -1,10 +1,0 @@
-The Transformer `cache_dir` argument is deprecated. Please pass `cache_dir` via `model_kwargs`, `processor_kwargs`, and/or `config_kwargs` instead.
-Loading weights:   0%|          | 0/201 [00:00<?, ?it/s]Loading weights:  14%|█▍        | 29/201 [00:00<00:00, 254.64it/s]Loading weights:  28%|██▊       | 57/201 [00:00<00:00, 258.01it/s]Loading weights: 100%|██████████| 201/201 [00:00<00:00, 670.90it/s]
-Building prefix dict from the default dictionary ...
-Loading model from cache C:\Users\28430\AppData\Local\Temp\jieba.cache
-Loading model cost 0.325 seconds.
-Prefix dict has been built successfully.
-Loading weights:   0%|          | 0/71 [00:00<?, ?it/s]Loading weights: 100%|██████████| 71/71 [00:00<00:00, 1764.73it/s]
-[fixed] bm25=0.7064 · dense=0.7278 · hybrid=0.7431 · hybrid+rerank=0.7217
-[section] bm25=0.7156 · dense=0.7523 · hybrid=0.7554 · hybrid+rerank=0.7798
-报告已写出：eval\rag_report_semantic.md

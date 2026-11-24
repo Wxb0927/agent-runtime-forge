@@ -30,6 +30,9 @@ BANNED_TOKENS = (
 SOURCE_DIRS = ("forge", "tests", "tools", "data", "contracts", "eval")
 SOURCE_FILES = ("README.md", "pyproject.toml", "uv.toml", ".gitignore", "uv.lock")
 
+#: 用户目录路径。捕获组是要检查的"用户名"那一段，占位写法（`<you>` 等）在断言里放过。
+USER_PATH_RE = re.compile(r"C:\\+Users\\+([A-Za-z0-9._-]{1,40})", re.IGNORECASE)
+
 
 def _iter_text_files():
     for d in SOURCE_DIRS:
@@ -123,3 +126,37 @@ def test_basetemp_parent_is_tracked_so_fresh_clone_works() -> None:
     """
     assert (ROOT / ".tmp" / ".keep").exists(), (
         "缺 .tmp/.keep：fresh clone 里 pytest 会因 basetemp 父目录不存在而报错")
+
+
+def test_no_oneoff_artifacts_or_machine_paths_are_tracked() -> None:
+    """仓库⛔ 跟踪一次性产物，也⛔ 出现带真用户名的绝对路径。
+
+    2026-11-24 发布复验时才从 **公网 clone** 里看到：`.tmp_lat_fix.py`、`.tmp_rerank2.log`、
+    `.tmp_rr3.log` 早在 D5/D6 就被 `git add -A` 捎进提交推上去了。三个后果：
+    ① 那个 .py 是 shell 转义事故的产物，中文全成乱码、语法还是坏的 ⇒ 陌生人扫仓库时
+       第一条印象就是"这人有垃圾没清"；
+    ② 那两个 log 里有一行 `C:\\Users\\<数字账号>\\AppData\\Local\\Temp\\jieba.cache`
+       ⇒ **机器指纹**，而且恰好是 README「缓存⛔ 写系统盘」那段的反证（jieba 那条后来才补上）；
+    ③ 原有的脱敏扫描⛔ 覆盖它们：白名单只收 .py/.md/.toml/.json/.txt，`.log` 整个不在论域里。
+    ⇒ 论域换成「git 跟踪的文件」这个事实集合，⛔ 我再手抄一遍后缀白名单。
+    """
+    import subprocess
+
+    tracked = subprocess.run(["git", "ls-files"], cwd=ROOT, capture_output=True,
+                             text=True).stdout.splitlines()
+    junk = [t for t in tracked
+            if Path(t).name.startswith(".tmp_") or Path(t).suffix == ".log"]
+    assert not junk, "一次性产物被跟踪了（该 git rm，靠 .gitignore 挡不住已入库的）：" + ", ".join(junk)
+
+    # 机器用户名形态的路径：`C:\Users\<you>` 这种占位写法是**文档**，合法；真名/真账号非法
+    bad = []
+    for t in tracked:
+        p = ROOT / t
+        if not p.is_file() or p.suffix not in {".py", ".md", ".toml", ".json", ".txt",
+                                               ".log", ".yml", ".yaml", ".sh", ".cfg", ".ini"}:
+            continue
+        text = p.read_text(encoding="utf-8", errors="replace")
+        for m in USER_PATH_RE.finditer(text):
+            if m.group(1).lower() not in ("<you>", "<user>", "%username%", "<user_name>"):
+                bad.append(f"{t}: {m.group()[:40]}")
+    assert not bad, "跟踪文件里出现真实用户目录路径（机器指纹）：\n" + "\n".join(bad)

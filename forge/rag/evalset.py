@@ -135,6 +135,9 @@ def load_set(path: Path = OUT_PATH) -> list[dict[str, Any]]:
 
 
 if __name__ == "__main__":
+    import sys
+    if hasattr(sys.stdout, "reconfigure"):   # 中文 Windows 控制台默认 cp936：
+        sys.stdout.reconfigure(encoding="utf-8", errors="backslashreplace")   # 打 ⛔/✅ 会 UnicodeEncodeError
     p = write_set()
     items = load_set(p)
     print(f"已写出 {p}：{counts(items)}")

@@ -1,6 +1,12 @@
 # 生成物与本地数据（合成数据可随时用 seed 复现，不入库）
 data/
 .tmp/*
+# ⚠️ 一次性脚本与日志散落仓库根的情况真发生过（2026-11-24 发布复验时发现
+#    `.tmp_lat_fix.py` + 两个 `.log` **已经被 git add -A 捎进提交并推上去了**）：
+#    `.tmp/*` 只挡目录，挡不住根上以 `.tmp` 开头的文件。⇒ 两条都写，且由
+#    tests/test_d2_hygiene.py 断言"仓库根⛔ 有已跟踪的一次性产物"。
+.tmp_*
+*.log
 # ⚠️ 必须保留一个被跟踪的占位：pytest 的 --basetemp=.tmp/pytest 需要父目录存在
 #    （pytest 只 mkdir 一层）。整个 .tmp/ 被忽略时，全新 clone 会缺父目录 ⇒
 #    uv run pytest 直接 35 个 error（fresh-clone 验证抓到的真缺陷）。
