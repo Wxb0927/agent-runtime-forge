@@ -1,0 +1,71 @@
+# agent-runtime-forge — README「跑起来」三条命令，逐条真跑
+# Windows 11 · uv 0.11.17 · CPython 3.11.15 · 合成数据（已脱敏）
+
+$ uv run pytest
+# …略过 2 行
+.......................................................                  [100%]
+199 passed in 28.70s
+# exit=0
+$ uv run python tools/mutation_check.py M29   # 改歪→红 / 改回→绿（抽样 1 条）
+# …略过 1 行
+     改歪 → 红 (rc=1)   改回 → 绿 (rc=0)   [test_intent_bad_envelope_keeps_the_exit_code_the_readme_promises]
+能失败检查: 1/1 通过（本仓库共 35 条：D1 5 + D2 6 + D3 5 + D4 6 + D5 6 + D6 6 + D7 1）
+   （已按关键字过滤：M29）
+# exit=0
+$ uv run python -m forge.cli --gates
+[GATE OK] G1: {'params': ['metric', 'project', 'topK'], 'max': 50}
+[GATE OK] G2: {'declared': ['budget_execution[labor]', 'budget_execution[manufacturing]', 'budget_execution[material]', 'budget_execution[misc]', 'completion_rate', 'cpi', 'eac', 'max_milestone_deviation_days', 'milestone_offschedule_rate', 'overdue_rate'], 'produced': ['budget_execution[labor]', 'budget_execution[manufacturing]', 'budget_execution[material]', 'budget_execution[misc]', 'completion_rate', 'cpi', 'eac', 'max_milestone_deviation_days', 'milestone_offschedule_rate', 'overdue_rate']}
+[GATE OK] G3: {'skills': ['cost', 'deviation', 'stats'], 'bytes': 4240}
+# exit=0
+$ uv run python -m forge.cli --intent '{"metric":"conplte_rate","topK":999}'
+{
+ "ok": false,
+ "code": "BAD_INTENT",
+ "message": "metric 非法：'conplte_rate'（⛔ 猜测、⛔ 自动纠正）",
+ "digest": [],
+ "notes": [
+  "heal:{\"metric\": [\"budget_execution[labor]\", \"budget_execution[manufacturing]\", \"budget_execution[material]\", \"budget_execution[misc]\", \"completion_rate\", \"cpi\", \"eac\", \"max_milestone_deviation_days\", \"milestone_offschedule_rate\", \"overdue_rate\"], \"topK\": \"1..50\"}",
+  "CLAMPED topK 999→50（上限 50）"
+ ],
+ "answer": "【意图未执行】metric 非法：'conplte_rate'（⛔ 猜测、⛔ 自动纠正）。合法取值见 notes，请改后重试。"
+}
+# exit=2
+$ uv run python -m forge.cli --describe stats
+{
+ "stats": {
+  "name": "stats",
+  "summary": "进度统计：完成率 + 逾期率（分母只算\"计划上应完成\"的那批）。",
+  "params": {
+   "metric": {
+    "type": "string",
+    "required": true,
+    "description": "要查的指标名，合法值见 enums.metric（由代码派生）"
+   },
+   "project": {
+    "type": "string",
+# …略过 46 行（画面为短；全量以本地实跑为准）
+$ uv run python -m uvicorn server.app:app --port 8899 &
+$ curl http://127.0.0.1:8899/healthz   # 起没起起来要自己说
+{"ok":true,"traces":404,"version":"0.6.0","trace_backend":"sqlite","trace_host":null,"vector_env_present":false,"vector_env":null,"vector_in_use":false,"vector_note":"服务路径不查向量库；RAG 评测用进程内 faiss。Qdrant 适配器在 server.persistence.QdrantDense，接入评测后才算启用","postgres_driver":null}
+$ curl -N "http://127.0.0.1:8899/v1/ask/stream?query=…"  # 事件流
+event: node
+data: {"type": "node", "node": "router", "skills": ["stats"]}
+event: node
+data: {"type": "node", "node": "guard", "tier": "company", "effective": "company", "visible": 300}
+event: node
+data: {"type": "node", "node": "stats", "metrics": 2, "source": "task_table", "step": 1}
+event: node
+data: {"type": "node", "node": "fanin"}
+event: node
+data: {"type": "node", "node": "aggregate", "code": "OK", "ok": true, "digest": 2}
+event: answer_line
+data: {"type": "answer_line", "text": "【范围】company｜收窄=delivery｜可见 1 个项目｜基准日 2026-10-30"}
+event: answer_line
+data: {"type": "answer_line", "text": "【进度】completion_rate 86.8%（33/38）；overdue_rate 13.2%（5/38）"}
+event: answer_line
+data: {"type": "answer_line", "text": "【来源】stats←task_table(第 1 步)"}
+# …略过 3 行（画面为短；全量以本地实跑为准）
+$ curl -X POST -d '{"query":"PRJ-1180 的成本","faults":"cost:perm"}' …
+{"ok":false,"code":"DEGRADED","message":"本次未取到任何指标","digest":[],"notes":["[router] skills=['cost'] matched=['成本']","[guard] tier=bu effective=bu bu 档：business_unit=bu-beta","[cost] from=cost_docs step=3","DEGRADED:cost"],"answer":"【范围】bu｜收窄=bu-beta｜可见 1 个项目｜基准日 2026-10-30\n【降级】cost：下游取数失败（尝试 3 次后降级），本次未计入"}
+$ curl http://127.0.0.1:8899/v1/trace/7a3bcce50035
+{"request_id":"7a3bcce50035","ts_epoch":1795513824.1684678,"ts_iso":"2026-11-24T17:50:24+0800","endpoint":"/v1/ask","query":"PRJ-1180 的成本","user_key":"u0041","line":"plan","steps":5,"tool_sequence":["router","guard","cost","fanin","aggregate"],"skills":["cost"],"codes":["DEGRADED"],"tokens_in":0,"tokens_out":0,"latency_ms":137.29,"degraded":true,"events":5,"envelope":{"ok":false,"code":"DEGRADED","message":"本次未取到任何指标","digest":[],"notes":["[router] skills=['cost'] matched=['成本']","[guard] tier=bu effective=bu bu 档：business_unit=bu-beta","[cost] from=cost_docs step=3","DEGRADED:cost"],"answer":"【范围】bu｜收窄=bu-beta｜可见 1 个项目｜基准日 2026-10-30\n【降级】cost：下游取数失败（尝试 3 次后降级），本次未计入"}}

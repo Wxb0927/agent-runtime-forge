@@ -62,7 +62,7 @@ flowchart LR
 
 | 指标 | 值 | 出处 |
 |---|---|---|
-| 测试 | **199 passed** | `uv run pytest` |
+| 测试 | **200 passed** | `uv run pytest` |
 | 能失败变异 | **35/35**（D1 5 + D2 6 + D3 5 + D4 6 + D5 6 + D6 6 + D7 1） | `uv run python tools/mutation_check.py` |
 | 并行竞态压测 | 同 thread 20 次 + 20 thread 并发 ⇒ **0 次字段覆盖** | `tests/test_graph_channels_race.py` |
 | 覆盖率矩阵 | **80 格**（10 域 × 8 问法）· 命中率 1.0（⚠️ 结构性偏高，见 caveat） | `eval/report.md` |
@@ -119,7 +119,7 @@ MCP 面把未知参数**静默忽略**，自研 `--intent` 面会 `DROPPED:` 点
 | D4 | 评估流水线（规则评分 / LLM-as-Judge / 回归差集 / 覆盖率矩阵 / PR 前检查） | ✅ 完成（2026-11-22），80 格矩阵 + 86 条语料 + 28/28 变异 |
 | D5 | RAG 检索线（本地 BGE 混合检索 + Reranker + 300 条业务 QA 评估集） | ✅ 完成（2026-11-23）：327 条 QA、**语义档 BGE + faiss + jieba 实跑**、MCP 真协议往返 9/9，两份报告并存（hash / semantic） |
 | D6 | FastAPI + SSE 服务化与可观测 | ✅ 完成（2026-11-23）：容器端到端已验证，compose 热态 **P95 77.9 ms**（`eval/latency.md`） |
-| D7 | 架构图、指标表、讲解稿 | ✅ 内容完成（架构/职责表/指标总表/三个取舍/边界/两份讲解稿/`docs/demo.sh`/指标同步检查器 + fresh-clone 28s 复验）；**GitHub 发布待用户账号** |
+| D7 | 架构图、指标表、讲解稿、Demo | ✅ **完成并已发布**：架构/职责表/指标总表/三个取舍/边界/两份讲解稿/`docs/demo.sh`/指标同步检查器 + fresh-clone 复验；**Public 仓库 `github.com/Wxb0927/agent-runtime-forge`**（已用⛔ 凭据的匿名 clone 实测）；`docs/demo.gif` + `docs/demo.txt` ＝三条命令的真输出（见「Demo」节的诚实边界） |
 
 ⛔ **本 README 不承诺未经实测的能力**：所有数字都由 `tools/d7_metrics_sync.py` 与 `eval/` 报告双向比对（不一致即 `exit 1`）；`docker compose up` 已在真容器里验过（`tools/d6_compose_smoke.py` 5/5）。**唯一未完成的动作是把仓库推到 GitHub**（需要用户账号与授权），因此状态词仍是**开发中**，⛔ 写「已开源 / 附 Demo」。
 
@@ -131,12 +131,31 @@ MCP 面把未知参数**静默忽略**，自研 `--intent` 面会 `DROPPED:` 点
 - **"无数据"与 0 是两种状态**：公式在分母为 0／数据缺失时返回 `None`，⛔ 返回 0。真实系统的产物里，0 会被业务方读成"确实没花钱"。
 - **不提供"实际工期"字段**：真实数据中实际开工日=实际完工日（完成时回填），任何基于"实际工期"的指标都是假的，所以口径直接否决，模型层就不给这个字段。
 
+## Demo
+
+![三条命令的真输出](docs/demo.gif)
+
+`docs/demo.gif` ＝ 下面这几条命令在本仓库**真跑一遍**的 stdout/stderr 逐行渲染（18.7 秒、956×718）：
+`uv run pytest` → `mutation_check M29` → `forge.cli --gates` → `--intent`（BAD_INTENT + 钳位 + 回带枚举 + `exit=2`）→
+`--describe stats` → 本地 `uvicorn` 的 **SSE 事件流** → 故障注入的**合法降级信封** → 按 `X-Request-Id` 取回的 **trace**（`steps=5`、`tool_sequence`、`degraded=true`）。
+纯文本版在 [docs/demo.txt](docs/demo.txt)（比 GIF 好复制、好 grep）。
+
+⚠️ **这个 Demo 的确切所指，⛔ 说过头**：
+
+- 它**是**"陌生人在自己机器上照 README 敲会得到什么"；帧里的每一行都来自真进程的真输出，
+  截短的地方都留了 `# …略过 N 行` 标记，⛔ 一行是我拼出来的；
+- 它**⛔ 是**屏幕录像（⛔ 鼠标、⛔ 键盘、⛔ 真终端截屏），也**⛔ 是在线服务**——⛔  hosted demo 链接可点；
+- 它由 `tools/d7_record_demo.py` 生成（约 55 秒），⛔ 信这张图，**自己跑一遍就是同等证据**：
+  `uv run python tools/d7_record_demo.py`（需要 dev 组的 Pillow；Docker 镜像⛔ 装它）。
+- ⚠️ 画面里 `/healthz` 的 `traces=380` 是**本机共享 sqlite 的历史计数**，⛔ 这批语料的规模；
+  延迟读数一律看 `eval/latency.md`（compose + Postgres 的形态），⛔ 拿这张图里的数当压测结论。
+
 ## 跑起来
 
 ```bash
 uv sync                                                  # 装依赖（Python 3.11+）
 uv run python -m forge.synth.generate --seed 42          # 生成合成数据到 data/
-uv run pytest -q                                         # 全部测试
+uv run pytest                                            # 全部测试（⚠️ ⛔ 再手打 -q：addopts 已有 -q，命令行再给就成了 -qq，"N passed in …s" 那行汇总会被吃掉——本项目在这上面摔过两次，Demo 第一版也因为这条⛔ 了最关键的读数）
 uv run python tools/mutation_check.py                    # 证明测试"能失败"（35 条，见顶部指标总表）
 uv run python tools/d2_api_probe.py                      # 框架语义实测读数（⛔ 凭记忆）
 
@@ -379,7 +398,7 @@ uv run python tools/intake_host.py --scratch .tmp/demo --thread t1 --continue
 | judge 模式 | 默认 `mode=rule`、`llm=skipped`，未评项显式列出；`--live-judge` 才走真模型 |
 | 评测器自证 | `tests/test_eval_pipeline.py` **23 条**（喂构造坏样本：假信封 / 假 judge / 假基线；⛔ 改磁盘源码） |
 | 能失败 | 全量复跑 **28/28 通过**（D1 5 + D2 6 + D3 5 + D4 6），每条改歪 rc=1 / 改回 rc=0，跑完工作区无残留 |
-| 全仓回归 | `pytest` **153 passed**（D4 当时的读数；现 198，见顶部指标总表） |
+| 全仓回归 | `pytest` **153 passed**（D4 当时的读数；现 200，见顶部指标总表） |
 
 ## D4 的两处取舍（⛔ 藏着）
 
@@ -649,7 +668,7 @@ Postgres 里确实落了 trace、下游故障仍是 **200 + 合法信封**、`/h
 | trace 内容 | `steps=5`（只问进度）/ `steps=7`（三分支全跑），`tool_sequence=router→guard→stats→fanin→aggregate`，`degraded=false` |
 | 降级演练（curl，`faults=cost:perm`） | HTTP 200 + `code=DEGRADED` + `【降级】cost：下游取数失败（尝试 3 次后降级），本次未计入`，其余分支数据保留 |
 | 能失败 | D6 组新增 **6 条**（M23–M28：降级不点名 / 全挂报成功 / **图跑两遍** / 步数漏记 / 空样本编 P95 / 打桩冒充 token）。⚠️ 当时这里写的"变异组 40 条"是**虚高**，真数 34——成因见文末「发布复验抓到的三个缺陷」第 ③ 条 |
-| 全仓测试 | `pytest` **199 passed**；D6 新增 `tests/test_server_api.py` 15 条 + `test_build_hygiene.py` 3 条（第 3 条是发布时补的：LICENSE 与 README 的许可证声明⛔ 分叉）；发布复验又补 `test_cli_encoding.py` 4 条、`test_d2_hygiene.py` 1 条、`test_build_hygiene.py` 1 条（见文末） |
+| 全仓测试 | `pytest` **200 passed**；D6 新增 `tests/test_server_api.py` 15 条 + `test_build_hygiene.py` 3 条（第 3 条是发布时补的：LICENSE 与 README 的许可证声明⛔ 分叉）；发布复验又补 `test_cli_encoding.py` 4 条、`test_d2_hygiene.py` 1 条、`test_build_hygiene.py` 2 条（变异总数派生 + 二进制文件的 gitattributes 规则，见文末） |
 
 ⚠️ **两个"步数"是不同口径，⛔ 说串**：`trace.steps` 是**图节点数**（router/guard/分支/fanin/aggregate）；
 简历里"首问 17 步 → 4 步"是**工具调用步数**。面试时如果指着 trace 说"看我 7 步"，
@@ -711,6 +730,16 @@ Postgres 里确实落了 trace、下游故障仍是 **200 + 合法信封**、`/h
       ——断言只长在工具的 import 里，没人跑工具时它就⛔ 存在。
    能失败实测：把 D4 再拼一遍（还原当年那个 bug 的形状）⇒ 该用例 **红**；还原 ⇒ **4 passed**。
    顺带把 D7 组立起来（`M29` 删掉 UTF-8 兜底 ⇒ `test_intent_...` 必红），于是总数 **35**（34 + 1）。
+5. **我自己写的第一版 Demo 录制脚本，一次产出里含三处"报告失真"**（全改了；前两条有断言，第三条靠肉眼）：
+   - 命令写成 `uv run pytest -q`，而 `addopts` 里已经带 `-q` ⇒ 实际成了 `-qq`，
+     **"N passed in …s" 那行汇总被吃掉**——Demo 里最关键的读数就这么消失了。这个坑本项目记过两次，
+     **第三次是我自己踩在给别人看的那张图上**；README 的 `跑起来` 那行也已改掉并写了原因。
+   - 脚本打印"144 帧"，把文件读回来只有 **83 帧 / 3.3 秒**（GIF 编码器合并相同帧，时长按它的规则累加）
+     ⇒ 我报的是**我打算写进去的**，⛔ 写进文件的。现在脚本自己 `ImageSequence` 数一遍并报实际播放秒数，
+     **不足 12 秒直接 `exit 2`**：⛔ 有人看得清的东西⛔ 叫 Demo。
+   - 折行按"中文算两格"估，而 Consolas 的拉丁与雅黑的中文**实测宽度都⛔ 是那个估计值** ⇒ 长行画到画面外。
+     改成按实测像素宽折行，且折行与绘制共用同一张 advance 缓存（两处各算一遍必然分叉）。
+     ⚠️ 这一条是**把帧存成 PNG 看了一眼**才发现的 ⇒ 教训：渲染类产物⛔ 只验数据、⛔ 看一眼画面。
 
 ## 许可证与数据来源
 

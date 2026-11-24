@@ -84,3 +84,24 @@ def test_mutation_inventory_total_is_derived_not_hand_summed() -> None:
     assert len(names) == sum(len(ms) for _, ms in MC.GROUPS), "分组明细之和 != 总数"
     assert set(MC.GROUP_OF) == set(names), "分组标签表与清单不同步"
     assert len(names) >= 30, f"只数出 {len(names)} 条 ⇒ 扫描/清单本身坏了（控制组）"
+
+
+def test_every_binary_artifact_has_an_explicit_gitattributes_rule() -> None:
+    """仓库里每个二进制文件都必须被 .gitattributes 显式标 binary。
+
+    为什么⛔ 靠 `* text=auto` 的自动嗅探：它只看首 8000 字节，而 **GIF 的头部全是 ASCII**
+    （`GIF89a` + 调色板），一旦被嗅成 text，Windows clone 的 CRLF 翻译会**逐字节改坏它**——
+    坏掉的 GIF 在 GitHub 上就是"Demo 图⛔ 出来"。README 的三条命令跑得通⛔ 等于门面完好，
+    这是第二条发布事故路径，所以钉成断言。
+    """
+    import subprocess
+    from pathlib import Path
+
+    ROOT = Path(__file__).resolve().parents[1]
+    tracked = subprocess.run(["git", "ls-files"], cwd=ROOT,
+                             capture_output=True, text=True).stdout.splitlines()
+    attrs = (ROOT / ".gitattributes").read_text("utf-8")
+    exts = {Path(t).suffix.lower() for t in tracked if Path(t).suffix}
+    suspect = {".gif", ".png", ".jpg", ".jpeg", ".webp", ".ico", ".webm", ".mp4", ".pdf"}
+    missing = sorted(e for e in exts & suspect if f"*{e} binary" not in attrs)
+    assert not missing, f"这些二进制后缀没有显式 binary 规则：{missing}"

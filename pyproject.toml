@@ -35,6 +35,7 @@ server = [                       # D6 容器形态：compose 设了 DATABASE_URL
 
 [dependency-groups]
 dev = [
+    "pillow>=13.0.0",
     "pytest>=8.2",
 ]
 

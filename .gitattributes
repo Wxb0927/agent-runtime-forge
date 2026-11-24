@@ -8,3 +8,10 @@
 *.jsonl text eol=lf
 *.png binary
 *.ico binary
+# ⚠️ GIF 必须显式列 binary：`* text=auto` 的自动判别**只看首 8000 字节**，
+#    一枚 GIF 的头部全是 ASCII（GIF89a + 调色板），文本嗅探有可能判成 text，
+#    判成 text 就会被 CRLF 翻译**逐字节改坏**——坏掉的 GIF 在 GitHub 上表现为"图⛔ 出来"，
+#    而这正是"陌生人不⛔ 跑通"之外的第二条发布事故路径。
+*.gif binary
+*.webm binary
+*.mp4 binary
