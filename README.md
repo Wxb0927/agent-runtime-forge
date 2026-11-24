@@ -62,7 +62,7 @@ flowchart LR
 
 | 指标 | 值 | 出处 |
 |---|---|---|
-| 测试 | **192 passed** | `uv run pytest` |
+| 测试 | **193 passed** | `uv run pytest` |
 | 能失败变异 | **40/40**（D1 5+D2 6+D3 5+D4 6+D5 6+D6 6） | `uv run python tools/mutation_check.py` |
 | 并行竞态压测 | 同 thread 20 次 + 20 thread 并发 ⇒ **0 次字段覆盖** | `tests/test_graph_channels_race.py` |
 | 覆盖率矩阵 | **80 格**（10 域 × 8 问法）· 命中率 1.0（⚠️ 结构性偏高，见 caveat） | `eval/report.md` |
@@ -137,7 +137,7 @@ MCP 面把未知参数**静默忽略**，自研 `--intent` 面会 `DROPPED:` 点
 uv sync                                                  # 装依赖（Python 3.11+）
 uv run python -m forge.synth.generate --seed 42          # 生成合成数据到 data/
 uv run pytest -q                                         # 全部测试
-uv run python tools/mutation_check.py                    # 证明测试"能失败"（11 条）
+uv run python tools/mutation_check.py                    # 证明测试"能失败"（40 条，见顶部指标总表）
 uv run python tools/d2_api_probe.py                      # 框架语义实测读数（⛔ 凭记忆）
 
 # D2 三条编排线跑同一个问句
@@ -379,7 +379,7 @@ uv run python tools/intake_host.py --scratch .tmp/demo --thread t1 --continue
 | judge 模式 | 默认 `mode=rule`、`llm=skipped`，未评项显式列出；`--live-judge` 才走真模型 |
 | 评测器自证 | `tests/test_eval_pipeline.py` **23 条**（喂构造坏样本：假信封 / 假 judge / 假基线；⛔ 改磁盘源码） |
 | 能失败 | 全量复跑 **28/28 通过**（D1 5 + D2 6 + D3 5 + D4 6），每条改歪 rc=1 / 改回 rc=0，跑完工作区无残留 |
-| 全仓回归 | `pytest` **153 passed**（D4 当时的读数；现 192，见顶部指标总表） |
+| 全仓回归 | `pytest` **153 passed**（D4 当时的读数；现 193，见顶部指标总表） |
 
 ## D4 的两处取舍（⛔ 藏着）
 
@@ -649,7 +649,7 @@ Postgres 里确实落了 trace、下游故障仍是 **200 + 合法信封**、`/h
 | trace 内容 | `steps=5`（只问进度）/ `steps=7`（三分支全跑），`tool_sequence=router→guard→stats→fanin→aggregate`，`degraded=false` |
 | 降级演练（curl，`faults=cost:perm`） | HTTP 200 + `code=DEGRADED` + `【降级】cost：下游取数失败（尝试 3 次后降级），本次未计入`，其余分支数据保留 |
 | 能失败 | 变异组 **40 条**（D6 新增 M23–M28：降级不点名 / 全挂报成功 / **图跑两遍** / 步数漏记 / 空样本编 P95 / 打桩冒充 token） |
-| 全仓测试 | `pytest` **192 passed**；D6 新增 `tests/test_server_api.py` 15 条 + `test_build_hygiene.py` 2 条 |
+| 全仓测试 | `pytest` **193 passed**；D6 新增 `tests/test_server_api.py` 15 条 + `test_build_hygiene.py` 3 条（第 3 条是发布时补的：LICENSE 与 README 的许可证声明⛔ 分叉） |
 
 ⚠️ **两个"步数"是不同口径，⛔ 说串**：`trace.steps` 是**图节点数**（router/guard/分支/fanin/aggregate）；
 简历里"首问 17 步 → 4 步"是**工具调用步数**。面试时如果指着 trace 说"看我 7 步"，
@@ -670,4 +670,15 @@ Postgres 里确实落了 trace、下游故障仍是 **200 + 合法信封**、`/h
    改成 `${FORGE_PG_PASSWORD:-forge-dev-only}` 并让 app 侧与 postgres 侧共用同一个来源，
    ⛔ 两处各写一遍必然分叉。
 7. **`docker info` 为空却差点把"一键运行"写成已验证** ⇒ 现在 smoke 脚本没 Docker 就 exit 3。
+
+## 许可证与数据来源
+
+- **许可证**：MIT（见 `LICENSE`）。这句话的重点⛔ 在"宽松许可"，而在它能被兑现——
+  仓库里没有一行雇主代码、没有内部文档、没有真实业务数据，所以授权给别人不需要我违背任何约束。
+- **数据⛔ 入库**：`data/` 由 `uv run python -m forge.synth.generate --seed 42` 现场生成，
+  同 seed 两次逐字节相同（`tests/test_determinism.py::test_same_seed_is_byte_identical` 钉住）。
+- **领域口径的出处**：指标公式、阈值与稀疏性分布取自一段真实的装备行业项目管理系统经验，
+  已按仓库顶部声明脱敏（公司名 / 表名 / 字段名 / 角色键全部换成通用命名，客户与金额为合成）。
+- **第三方依赖的许可**：本仓库⛔ 分发依赖，全部由 `uv.lock` 按版本锁定后从上游安装；
+  各依赖自己的许可证以其上游为准，本项目的 MIT **⛔ 覆盖它们**。
 

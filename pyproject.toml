@@ -1,7 +1,7 @@
 [project]
 name = "agent-runtime-forge"
 version = "0.1.0"
-description = "Enterprise Agent runtime rebuilt on mainstream stacks (LangGraph/FastAPI/MCP/RAG/eval harness) - a controlled comparison against a zero-dependency in-house runtime"
+description = "把生产环境里跑过的企业智能体运行时，用主流栈（LangGraph / FastAPI / MCP / RAG / 评测流水线）重做一遍，对照「现成框架替你承担了什么、又替你把什么变成了黑盒」；合成数据，已脱敏"
 requires-python = ">=3.11"
 dependencies = [
     "aiosqlite>=0.22.1",

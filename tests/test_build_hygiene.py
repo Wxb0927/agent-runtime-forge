@@ -36,3 +36,28 @@ def test_uv_config_has_no_shadowed_index_block() -> None:
         assert "[[tool.uv.index]]" not in pyproject, (
             "uv.toml 与 pyproject 同时定义索引 ⇒ pyproject 那份会被忽略，"
             "改它毫无效果还留着当'看起来配好了'。删掉一处。")
+
+
+def test_license_claim_and_artifact_cannot_diverge() -> None:
+    """README 写「MIT（见 LICENSE）」⇒ LICENSE 必须真在仓库里，且两边说的是同一个许可证。
+
+    这条和 `test_basetemp_parent_is_tracked_so_fresh_clone_works` 同形：
+    断言的是**仓库自身的可交付物存在**，本机永远有这个文件所以我永远看不见它缺失。
+    许可证一旦缺失，公开仓库的默认法律状态是"⛔ 任何人可复用"，
+    而 README 那句"可以放心复制、改写、用于商业用途"就从说明变成了误导。
+    """
+    from pathlib import Path
+
+    lic = Path("LICENSE")
+    assert lic.exists(), "LICENSE 缺失：README 声称 MIT 却没有许可证正文"
+    license_text = lic.read_text(encoding="utf-8")
+    readme = Path("README.md").read_text(encoding="utf-8")
+    assert "MIT License" in license_text, "LICENSE 不是 MIT 正文"
+    assert "MIT" in readme, "README 声称 MIT，正文里却找不到这个词"
+    # 只有一处许可证声明：pyproject 若写了别的许可证，公开时 GitHub 会以 SPDX 字段为准
+    import tomllib
+
+    proj = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
+    claimed = proj.get("project", {}).get("license")
+    assert claimed in (None, "MIT", {"spdx_id": "MIT"}), (
+        f"pyproject 的 license={claimed!r} 与 LICENSE(MIT) 不一致")
